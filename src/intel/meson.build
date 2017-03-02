@@ -1,0 +1,6 @@
+subdir('common')
+subdir('compiler')
+subdir('genxml')
+subdir('isl')
+subdir('blorp')
+subdir('vulkan')
