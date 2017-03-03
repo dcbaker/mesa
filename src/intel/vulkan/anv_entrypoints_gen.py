@@ -67,6 +67,7 @@ def print_guard_end(guard):
     if guard is not None:
         print "#endif // {0}".format(guard)
 
+doc = ET.parse(sys.argv.pop())
 opt_header = False
 opt_code = False
 
@@ -130,7 +131,6 @@ def get_entrypoints_defines(doc):
             entrypoints_to_defines[fullname] = define
     return entrypoints_to_defines
 
-doc = ET.parse(sys.stdin)
 entrypoints = get_entrypoints(doc, get_entrypoints_defines(doc))
 
 # Manually add CreateDmaBufImageINTEL for which we don't have an extension
