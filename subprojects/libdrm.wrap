@@ -1,0 +1,4 @@
+[wrap-git]
+directory=libdrm
+url=https://github.com/dcbaker/libdrm.git
+revision=wip/meson

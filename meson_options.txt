@@ -1,0 +1,3 @@
+option('wsi_wayland', type : 'boolean', value : false)
+option('wsi_x11',     type : 'boolean', value : false)
+option('vk_intel',    type : 'boolean', value : false)

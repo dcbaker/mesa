@@ -20,6 +20,12 @@
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+import os
+import sys
+
+sys.path.insert(
+    0, os.path.join(os.path.dirname(__file__), '..', '..', 'compiler', 'nir'))
+
 import nir_algebraic
 
 # Prior to Kaby Lake, The SIN and COS instructions on Intel hardware can
