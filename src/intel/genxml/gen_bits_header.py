@@ -1,24 +1,116 @@
 #encoding=utf-8
+# Copyright © 2017 Intel Corporation
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 from __future__ import (
     absolute_import, division, print_function, unicode_literals
 )
 
+from textwrap import dedent
 import argparse
-import io
 import os
-import os.path
 import re
 import sys
-from sys import stdout, stderr
-from textwrap import dedent
 import xml.parsers.expat
+
+from mako.template import Template
+
+TEMPLATE = Template("""\
+/*
+ * Copyright © 2017 Intel Corporation
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice (including the next
+ * paragraph) shall be included in all copies or substantial portions of the
+ * Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
+/* THIS FILE HAS BEEN GENERATED, DO NOT HAND EDIT.
+ *
+ * Sizes of bitfields in genxml instructions, structures, and registers.
+ */
+
+#ifndef ${guard}
+#define ${guard}
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+## Write out all macros
+% for _, funcs in sorted(fields.by_gen_10x.iteritems(), key=lambda x: x[0], reverse=True):
+  % for f in funcs:
+    #define ${f.token_name} ${f.bits}
+    % if f.comment:
+      /* ${f.comment} */
+    %endif
+
+  % endfor
+
+%endfor
+
+## Write out all functions
+% for basename, funcs in sorted(fields.by_token_basenames.iteritems()):
+  static inline uint32_t __attribute__((const))
+  ${basename}(int gen_10x)
+  {
+    switch (gen_10x) {
+  % for f in sorted(funcs):
+    case ${f.gen.tenx}: return ${f.token_name};
+  % endfor
+    default: return 0;
+    }
+  }
+
+% endfor
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ${guard} */""",
+output_encoding='utf-8')
+
 
 def safe_token(t):
     t = t.replace(' ', '')
     if t[0].isdigit():
         t = '_' + t
     return t
+
 
 class Gen(object):
 
@@ -27,10 +119,10 @@ class Gen(object):
         z = float(z)
         if z < 10:
             z *= 10
-        self._10x = int(z)
+        self.tenx = int(z)
 
     def prefix(self, token):
-        gen = self._10x
+        gen = self.tenx
 
         if gen % 10 == 0:
             gen //= 10
@@ -40,97 +132,6 @@ class Gen(object):
 
         return 'GEN{}_{}'.format(gen, token)
 
-class Header(object):
-
-    def __init__(self, buf):
-        self.buf = buf
-        self.cpp_guard = os.path.basename(buf.name).upper().replace('.', '_')
-
-    def write(self, *args, **kwargs):
-        self.buf.write(*args, **kwargs)
-
-    def write_prologue(self):
-        self.write(dedent("""\
-            /*
-             * Copyright (C) 2017 Intel Corporation
-             *
-             * Permission is hereby granted, free of charge, to any person obtaining a
-             * copy of this software and associated documentation files (the "Software"),
-             * to deal in the Software without restriction, including without limitation
-             * the rights to use, copy, modify, merge, publish, distribute, sublicense,
-             * and/or sell copies of the Software, and to permit persons to whom the
-             * Software is furnished to do so, subject to the following conditions:
-             *
-             * The above copyright notice and this permission notice (including the next
-             * paragraph) shall be included in all copies or substantial portions of the
-             * Software.
-             *
-             * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-             * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-             * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-             * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-             * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-             * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-             * IN THE SOFTWARE.
-             */
-
-            /* THIS FILE HAS BEEN GENERATED, DO NOT HAND EDIT.
-             *
-             * Sizes of bitfields in genxml instructions, structures, and registers.
-             */
-
-             """))
-
-        self.write('#ifndef {}\n'.format(self.cpp_guard))
-        self.write('#define {}\n'.format(self.cpp_guard))
-
-        self.write(dedent("""
-            #include <stdint.h>
-
-            #ifdef __cplusplus
-            extern "C" {
-            #endif
-
-            """))
-
-    def write_epilogue(self):
-        self.write(dedent("""\
-            #ifdef __cplusplus
-            }
-            #endif
-
-            """))
-
-        self.write('#endif /* {} */\n'.format(self.cpp_guard))
-
-    def write_macros(self, fields):
-        for gen_10x in sorted(fields.by_gen_10x.keys(), reverse=True):
-            for f in fields.by_gen_10x[gen_10x]:
-                self.write('#define {:56} {:2}'.format(f.token_name, f.bits))
-                if f.comment:
-                    self.write(' /* {} */'.format(f.comment))
-                self.write('\n')
-            self.write('\n')
-
-    def write_funcs(self, fields):
-        def gen_10x(field):
-            return field.gen._10x
-
-        for basename in sorted(fields.by_token_basenames.keys()):
-            self.write('static inline uint32_t __attribute__((const))\n')
-            self.write('{}(int gen_10x)\n'.format(basename))
-            self.write('{\n')
-            self.write('   switch (gen_10x) {\n')
-
-            for f in sorted(fields.by_token_basenames[basename],
-                            key=gen_10x, reverse=True):
-                self.write('   case {}: return {};\n'
-                           .format(f.gen._10x, f.token_name))
-
-            self.write('   default: return 0;\n')
-            self.write('   }\n')
-            self.write('}\n')
-            self.write('\n')
 
 class Field(object):
 
@@ -150,6 +151,7 @@ class Field(object):
         self.token_name = gen.prefix(self.token_basename)
         self.comment = comment
 
+
 class FieldCollection(object):
 
     def __init__(self):
@@ -157,8 +159,9 @@ class FieldCollection(object):
         self.by_token_basenames = {}
 
     def add(self, field):
-        self.by_gen_10x.setdefault(field.gen._10x, []).append(field)
+        self.by_gen_10x.setdefault(field.gen.tenx, []).append(field)
         self.by_token_basenames.setdefault(field.token_basename, []).append(field)
+
 
 class XmlParser(object):
 
@@ -224,21 +227,19 @@ class XmlParser(object):
             self.fields.add(Field(self.gen, self.container_name, aux_attrs,
                                   comment='alias of MCSSurfacePitch'))
 
+
 def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument('-o', '--output', type=str)
-    p.add_argument('sources', metavar='SOURCES', nargs=argparse.REMAINDER)
+    p.add_argument('sources', metavar='SOURCES', nargs='+')
 
     pargs = p.parse_args()
-
-    if len(pargs.sources) == 0:
-        stderr.write('error: no source files\n')
-        sys.exit(1)
 
     if pargs.output in (None, '-'):
         pargs.output = '/dev/stdout'
 
     return pargs
+
 
 def main():
     pargs = parse_args()
@@ -248,12 +249,11 @@ def main():
     for source in pargs.sources:
         XmlParser(fields).parse(source)
 
-    with open(pargs.output, 'w') as outfile:
-        header = Header(outfile)
-        header.write_prologue()
-        header.write_macros(fields)
-        header.write_funcs(fields)
-        header.write_epilogue()
+    with open(pargs.output, 'wb') as f:
+        f.write(TEMPLATE.render(
+            fields=fields,
+            guard=os.path.basename(f.name).upper().replace('.', '_')))
+
 
 if __name__ == '__main__':
     main()
