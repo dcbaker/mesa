@@ -346,6 +346,8 @@ endif
 opt_wsi_wayland = get_option('wsi_wayland')
 opt_wsi_x11 = get_option('wsi_x11')
 opt_vk_intel = get_option('vk_intel')
+opt_gl_intel = get_option('gl_intel')
+opt_gl = opt_gl_intel
 opt_vk = opt_vk_intel
 
 if opt_vk and not (opt_wsi_wayland or opt_wsi_x11)

@@ -43,3 +43,6 @@ endif
 if opt_vk_intel  # TODO: or i965 (i915?)
   subdir('intel')
 endif
+#if opt_wsi_x11 and opt_gl
+  #subdir('glx')
+#endif
