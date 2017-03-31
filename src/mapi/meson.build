@@ -18,34 +18,39 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_common = include_directories(
-  '.',
-  'mesa',
-  'gallium/auxiliary',
-  'gallium/include',
-  'mapi',
-  '../include',
+files_mapi_glapi = files(
+  'entry.c',
+  'mapi_glapi.c',
+  'stub.c',
+  'stub.h',
+  'table.c',
+  'table.h',
 )
 
-files_wl_xml = files('egl/wayland/wayland-drm/wayland-drm.xml')
+files_mapi_util = files(
+  'u_current.c',
+  'u_current.h',
+  'u_execmem.c',
+  'u_execmem.h',
+)
 
-subdir('util')
-# TODO: HAVE_OPENGL
-# TODO: HAVE_GLX
-# TODO: HAVE_COMMON_OSMESA
-subdir('compiler')
-if opt_wsi_wayland
-  subdir('egl/wayland/wayland-egl')
-endif
-if opt_vk
-  subdir('vulkan')
-endif
-if opt_vk_intel  # TODO: or i965 (i915?)
-  subdir('intel')
-endif
-# TODO: if shared_glapi
-subdir('mapi')
+files_mapi_bridge = files(
+  'entry.c',
+  'entry.h',
+  'entry_x86-64_tls.h',
+  'entry_x86_tls.h',
+  'entry_x86_tsd.h',
+  'mapi_tmp.h',
+)
 
-#if opt_wsi_x11 and opt_gl
-  #subdir('glx')
-#endif
+mapi_abi_gen_files = files('mapi_abi.py', 'glapi/gen/gl_and_es_API.xml')
+
+if opt_shared_glapi
+  subdir('shared-glapi')
+endif
+if opt_gl_api
+  subdir('glapi')
+endif
+
+# TODO: GLES1
+# TODO: GLES2

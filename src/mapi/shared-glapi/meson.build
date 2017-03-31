@@ -18,34 +18,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_common = include_directories(
-  '.',
-  'mesa',
-  'gallium/auxiliary',
-  'gallium/include',
-  'mapi',
-  '../include',
+shared_glapi_mapi_tmp_h = custom_target(
+  'shared_glapi_mapi_tmp.h',
+  input : mapi_abi_gen_files,
+  output : 'glapi_mapi_tmp.h',
+  command : [prog_python, '@INPUT0@', '--mode', 'lib',
+             '--printer', 'shared-glapi', '@INPUT1@'],
+  capture : true,
 )
 
-files_wl_xml = files('egl/wayland/wayland-drm/wayland-drm.xml')
+# TODO: SELINUX dependency
+libglapi_shared = shared_library(
+  'glapi',
+  [shared_glapi_mapi_tmp_h, files_mapi_glapi, files_mapi_util],
+  include_directories : inc_common, 
+  c_args : ['-DMAPI_ABI_HEADER="shared-glapi/glapi_mapi_tmp.h"',
+            '-DMAPI_MODE_GLAPI', args_c_visibility,
+            args_c_msvc_compat],
+  link_args : args_ld_symbolic + args_ld_gc_sections,
+  dependencies : [dep_thread],
+  install : true,
+)
 
-subdir('util')
-# TODO: HAVE_OPENGL
-# TODO: HAVE_GLX
-# TODO: HAVE_COMMON_OSMESA
-subdir('compiler')
-if opt_wsi_wayland
-  subdir('egl/wayland/wayland-egl')
-endif
-if opt_vk
-  subdir('vulkan')
-endif
-if opt_vk_intel  # TODO: or i965 (i915?)
-  subdir('intel')
-endif
-# TODO: if shared_glapi
-subdir('mapi')
-
-#if opt_wsi_x11 and opt_gl
-  #subdir('glx')
-#endif
+# TODO: tests

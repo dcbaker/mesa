@@ -18,34 +18,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_common = include_directories(
-  '.',
-  'mesa',
-  'gallium/auxiliary',
-  'gallium/include',
-  'mapi',
-  '../include',
+static_glapi_mapi_tmp_h = custom_target(
+  'static_glapi_mapi_tmp.h',
+  input : mapi_abi_gen_files,
+  output : 'glapi_mapi_tmp.h',
+  command : [prog_python, '@INPUT0@', '--mode', 'lib',
+             '--printer', 'glapi', '@INPUT1@'],
+  capture : true,
+  build_by_default : false,
 )
 
-files_wl_xml = files('egl/wayland/wayland-drm/wayland-drm.xml')
+files_glapi_static = []
 
-subdir('util')
-# TODO: HAVE_OPENGL
-# TODO: HAVE_GLX
-# TODO: HAVE_COMMON_OSMESA
-subdir('compiler')
-if opt_wsi_wayland
-  subdir('egl/wayland/wayland-egl')
-endif
-if opt_vk
-  subdir('vulkan')
-endif
-if opt_vk_intel  # TODO: or i965 (i915?)
-  subdir('intel')
-endif
-# TODO: if shared_glapi
-subdir('mapi')
+# TODO: assembly
 
-#if opt_wsi_x11 and opt_gl
-  #subdir('glx')
-#endif
+# TODO: apple and windows dri
+
+if opt_shared_glapi
+  args_c_glapi_static = [
+    '-DMAPI_MODE_BRIDGE',
+    '-DMAPI_ABI_HEADER="glapi/glapi_mapi_tmp.h"',
+  ]
+  files_glapi_static += files_mapi_bridge
+  files_glapi_static += static_glapi_mapi_tmp_h
+else
+  # TODO
+endif
+
+# TODO: SELINUX
+libglapi_static = static_library(
+  'glapi',
+  files_glapi_static,
+  include_directories : inc_common,
+  c_args : [args_c_glapi_static, args_c_msvc_compat],
+)

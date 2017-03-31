@@ -205,15 +205,15 @@ endif
 args_global += '-DNDEBUG'
 
 # Check linker argument
-symbolic_ld_args = []
-gc_sections_ld_args = []
+args_ld_symbolic = []
+args_ld_gc_sections = []
 if cc.links('''int main() { return 0; };''', args : '-Wl,-Bsymbolic',
             name : '-Bsymbolic')
-  symbolic_ld_args += '-Wl,-Bsymbolic'
+  args_ld_symbolic += '-Wl,-Bsymbolic'
 endif
 if cc.links('''static char UnusedFunc() { return 5; } int main() { return 0; }''',
             args : '-Wl,--gc-sections', name : '--gc-sections')
-  gc_sections_ld_args += '-Wl,--gc-sections'
+  args_ld_gc_sections += '-Wl,--gc-sections'
 endif
 if cc.links('''int main() { return 0; }''',
             args : ['-Wl,--version-script', 
@@ -345,10 +345,18 @@ endif
 
 opt_wsi_wayland = get_option('wsi_wayland')
 opt_wsi_x11 = get_option('wsi_x11')
+
 opt_vk_intel = get_option('vk_intel')
 opt_gl_intel = get_option('gl_intel')
+
 opt_gl = opt_gl_intel
 opt_vk = opt_vk_intel
+
+opt_gl_api = true
+opt_gles1_api = false
+opt_gles2_api = false
+
+opt_shared_glapi = true
 
 if opt_vk and not (opt_wsi_wayland or opt_wsi_x11)
   error('Vulkan drivers require at least one of: wsi_x11, wsi_wayland')
