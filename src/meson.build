@@ -45,7 +45,7 @@ if opt_vk_intel  # TODO: or i965 (i915?)
 endif
 # TODO: if shared_glapi
 subdir('mapi')
-
-#if opt_wsi_x11 and opt_gl
-  #subdir('glx')
-#endif
+subdir('loader')
+if opt_wsi_x11 and opt_gl
+  subdir('glx')
+endif

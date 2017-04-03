@@ -18,15 +18,30 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# TODO: pkgconfig
-
-# TODO: should this depend on wayland-egl-priv.h?
-libwayland_egl = shared_library(
-  'wayland-egl',
-  'wayland-egl.c',
-  c_args : args_c_visibility,
-  link_args : args_ld_gc_sections,
-  dependencies : [dep_wayland_client, dep_wayland_server],
+files_lib_loader = files(
+  'loader.c',
+  'loader.h',
+  'pci_id_driver_map.c',
+  'pci_id_driver_map.h',
 )
 
-# TODO: tests
+# TODO: have_dricommon
+
+libloader = static_library(
+  'loader',
+  files_lib_loader,
+  include_directories : inc_common,
+  c_args : args_c_visibility,
+  dependencies : [dep_libdrm, dep_xcb_dri3],
+  build_by_default : false,
+)
+
+# TODO: only if have dri3
+
+libloader_dri3_helper = static_library(
+  'loader_dri3_helper',
+  ['loader_dri3_helper.c', 'loader_dri3_helper.h'],
+  include_directories : inc_common,
+  dependencies : [dep_libdrm, dep_xcb_dri3],
+  build_by_default : false,
+)
