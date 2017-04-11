@@ -124,9 +124,6 @@ libintel_vulkan = shared_library(
 )
 # TODO: linker flags
 
-# TODO: move this to top
-prog_sed = find_program('sed')
-
 # XXX: the DEV ICD doesn't make sense for meson, since it doesn't put things in /bin and /lib
 # TODO: make ICD dir configurable
 anv_conf = configuration_data()

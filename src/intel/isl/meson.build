@@ -20,51 +20,56 @@
 
 # TODO: tests
 
+files_isl_gen_common = files(
+  'isl_surface_state.c',
+  'isl_emit_depth_stencil.c',
+)
+
 libisl_gen4 = static_library(
   'isl_gen4',
-  ['isl_gen4.c', 'isl_gen4.h', 'isl_surface_state.c', gen4_pack_h],
+  ['isl_gen4.c', 'isl_gen4.h', files_isl_gen_common, gen4_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=40'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen5 = static_library(
   'isl_gen5',
-  ['isl_surface_state.c', gen5_pack_h],
+  [files_isl_gen_common, gen5_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=50'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen6 = static_library(
   'isl_gen6',
-  ['isl_gen6.c', 'isl_gen6.h', 'isl_surface_state.c', gen6_pack_h],
+  ['isl_gen6.c', 'isl_gen6.h', files_isl_gen_common, gen6_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=60'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen7 = static_library(
   'isl_gen7',
-  ['isl_gen7.c', 'isl_gen7.h', 'isl_surface_state.c', gen7_pack_h],
+  ['isl_gen7.c', 'isl_gen7.h', files_isl_gen_common, gen7_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=70'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen75 = static_library(
   'isl_gen75',
-  ['isl_surface_state.c', gen75_pack_h],
+  [files_isl_gen_common, gen75_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=75'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen8 = static_library(
   'isl_gen8',
-  ['isl_gen8.c', 'isl_gen8.h', 'isl_surface_state.c', gen8_pack_h],
+  ['isl_gen8.c', 'isl_gen8.h', files_isl_gen_common, gen8_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=80'],
   include_directories : [inc_common, inc_intel],
 )
 
 libisl_gen9 = static_library(
   'isl_gen9',
-  ['isl_gen9.c', 'isl_gen9.h', 'isl_surface_state.c', gen9_pack_h],
+  ['isl_gen9.c', 'isl_gen9.h', files_isl_gen_common, gen9_pack_h],
   c_args : [args_c_intel, args_c_visibility, '-DGEN_VERSIONx10=90'],
   include_directories : [inc_common, inc_intel],
 )
