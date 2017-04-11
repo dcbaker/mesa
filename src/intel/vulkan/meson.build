@@ -37,6 +37,7 @@ files_anv_genx = [
   'genX_query.c',
   'genX_state.c',
   anv_entrypoints,
+  nir_opcodes_h,
 ]
 
 libanv_gen7 = static_library(
