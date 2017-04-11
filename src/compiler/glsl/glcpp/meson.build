@@ -18,41 +18,31 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_compiler = files(
-  'builtin_type_macros.h',
-  'glsl_types.cpp',
-  'glsl_types.h',
-  'nir_types.cpp',
-  'nir_types.h',
-  'shader_enums.c',
-  'shader_enums.h',
-  'shader_info.h',
-)
-
-files_spirv = files(
-  'spirv/GLSL.std.450.h',
-  'spirv/nir_spirv.h',
-  'spirv/spirv.h',
-  'spirv/spirv_info.h',
-  'spirv/spirv_info.c',
-  'spirv/spirv_to_nir.c',
-  'spirv/vtn_alu.c',
-  'spirv/vtn_cfg.c',
-  'spirv/vtn_glsl450.c',
-  'spirv/vtn_private.h',
-  'spirv/vtn_variables.c',
-)
-
-inc_compiler = include_directories('.')
-
-ir_expression_operation_h = custom_target(
-  'ir_expression_operation.h',
-  input : 'glsl/ir_expression_operation.py',
-  output : '@BASENAME@.h',
-  command : [prog_python, '@INPUT@', 'enum'],
-  capture : true,
+glcpp_lex_c = custom_target(
+  'glcpp-lex.c',
+  input : 'glcpp-lex.l',
+  output : 'glcpp-lex.c',
+  command : [prog_flex, '-o', '@OUTPUT@', '@INPUT@'],
   build_by_default : false,
 )
 
-subdir('nir')
-subdir('glsl')
+glcpp_parse = custom_target(
+  'glcpp_parse.[ch]',
+  input : 'glcpp-parse.y',
+  output : ['glcpp-parse.c', 'glcpp-parse.h'],
+  command : [prog_bison, '-o', '@OUTPUT0@', '-p', 'glcpp_parser_',
+             '--defines=@OUTPUT1@', '@INPUT@'],
+  build_by_default : false,
+)
+
+files_glcpp = files(
+  'glcpp.h',
+  'pp.c',
+)
+
+libglcpp = shared_library(
+  'glcpp',
+  [files_glcpp, glcpp_parse, glcpp_lex_c],
+  link_with : libmesautil,
+  include_directories : inc_common,
+)
