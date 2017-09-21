@@ -34,7 +34,9 @@ with_windowsdri = false
 with_gles1 = get_option('gles1')
 with_gles2 = get_option('gles2')
 with_opengl = get_option('opengl')
+with_any_opengl = with_opengl or with_gles1 or with_gles2
 with_shared_glapi = get_option('shared-glapi')
+
 # TODO: these will need options, but at the moment they just control header
 # installs
 with_glx = false
@@ -51,6 +53,23 @@ endif
 # We require OpenGL for OpenGL ES
 if (with_gles1 or with_gles2) and not with_opengl
   error('building OpenGL ES without OpenGL is not supported.')
+endif
+
+with_dri = false
+with_dri_i965 = false
+_drivers = get_option('dri-drivers')
+if _drivers != ''
+  _split = _drivers.split(',')
+  with_dri_i965 = _split.contains('i965')
+  with_dri = true
+endif
+
+if not with_dri
+  with_gles1 = false
+  with_gles2 = false
+  with_opengl = false
+  with_any_opengl = false
+  with_shared_glapi = false
 endif
 
 # TODO: there are more platforms required for non-vulkan drivers
@@ -93,9 +112,14 @@ endif
 # Arguments for the preprocessor, put these in a separate array from the C and
 # C++ (cpp in meson terminology) arguments since they need to be added to the
 # default arguments for both C and C++.
-pre_args = ['-D__STDC_CONSTANT_MACROS', '-D__STDC_FORMAT_MACROS',
-            '-D__STDC_LIMIT_MACROS',
-            '-DVERSION="@0@"'.format(meson.project_version())]
+pre_args = [
+  '-D__STDC_CONSTANT_MACROS',
+  '-D__STDC_FORMAT_MACROS',
+  '-D__STDC_LIMIT_MACROS',
+  '-DVERSION="@0@"'.format(meson.project_version()),
+  '-DPACKAGE_VERSION=VERSION',
+  '-DPACKAGE_BUGREPORT="https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa"',
+]
 
 # Define DEBUG for debug and debugoptimized builds
 if get_option('buildtype').startswith('debug')
@@ -238,6 +262,7 @@ if meson.is_cross_build()
   with_asm = false
 endif
 
+with_asm_arch = ''
 if with_asm
   # TODO: SPARC and PPC
   if target_machine.cpu_family() == 'x86'
@@ -391,6 +416,10 @@ if dep_valgrind.found() and with_valgrind
 endif
 
 # pthread stubs. Lets not and say we didn't
+
+_req_parse = with_opengl or with_gles1 or with_gles2
+prog_bison = find_program('bison', required : _req_parse)
+prog_flex = find_program('flex', required : _req_parse)
 
 # TODO: selinux
 dep_selinux = []
