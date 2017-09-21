@@ -18,32 +18,37 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# TODO: libglsl_util
+es1_glapi_mapi_tmp_h = custom_target(
+  'es1_glapi_mapi_tmp.h',
+  input : ['../mapi_abi.py', gl_and_es_api_files],
+  output : 'glapi_mapi_tmp.h',
+  command : [prog_python2, '@INPUT0@', '--printer', 'es1api', '@INPUT1@'],
+  depend_files : api_xml_files,
+  capture : true,
+)
 
-# TODO: git_sha. There's a meson builtin for this
+libglesv1_cm = shared_library(
+  'GLESv1_CM',
+  ['../entry.c', es1_glapi_mapi_tmp_h],
+  c_args : [c_msvc_compat_args, c_vis_args, '-DMAPI_MODE_BRIDGE',
+            '-DMAPI_ABI_HEADER="@0@"'.format(es1_glapi_mapi_tmp_h.full_path())],
+  link_args : [ld_args_gc_sections],
+  include_directories : [inc_src, inc_include, inc_mapi],
+  link_with : libglapi,
+  dependencies : [dep_thread, dep_libdrm, dep_m, dep_dl],
+  version : '1.1',
+  install : true,
+)
 
-inc_common = include_directories(
-  '../include', '.', 'mapi', 'mesa', 'gallium/include', 'gallium/auxiliary')
-inc_mesa = include_directories('mesa')
-inc_mapi = include_directories('mapi')
-inc_src = include_directories('.')
+pkg.generate(
+  libraries : libglesv1_cm,
+  # TODO: private libraries?
+  name : 'glesv1_cm',
+  version : meson.project_version(),
+  description : 'Mesa OpenGL ES 1.1 CM library',
+  filebase : 'glesv1_cm'
+)
 
-subdir('gtest')
-subdir('util')
-subdir('mapi/glapi/gen')
-subdir('mapi')
-# TODO: opengl
-# TODO: glx
-# TODO: osmesa
-subdir('compiler')
-subdir('egl/wayland/wayland-drm')
-subdir('vulkan')
-subdir('amd')
-subdir('intel')
-# TODO: vc4
-# TODO: opengl_common
-# TODO: dri_glx
-# TODO: gbm
-# TODO: egl
-# TODO: radv
-# TODO: gallium
+if with_tests
+  test('es1-ABI-check', find_program('ABI-check'))
+endif
