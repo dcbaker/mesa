@@ -247,7 +247,7 @@ glx_indirect_size_h = custom_target(
   input : ['glX_proto_size.py', 'gl_API.xml'],
   output : 'indirect_size.h',
   command : [prog_python2, '@INPUT0@', '-f', '@INPUT1@', '-m', 'size_h',
-             '--header-tag', '_INDIRECT_SIZE_H_'],
+             '--header-tag', '_INDIRECT_SIZE_H_', '--only-set'],
   depend_files : glx_gen_depends,
   capture : true,
 )
@@ -256,7 +256,8 @@ glx_indirect_size_c = custom_target(
   'indirect_size.c',
   input : ['glX_proto_size.py', 'gl_API.xml'],
   output : 'indirect_size.c',
-  command : [prog_python2, '@INPUT0@', '-f', '@INPUT1@', '-m', 'size_c'],
+  command : [prog_python2, '@INPUT0@', '-f', '@INPUT1@', '-m', 'size_c',
+             '--only-set'],
   depend_files : glx_gen_depends,
   capture : true,
 )

@@ -20,6 +20,8 @@
 
 option('platforms',      type : 'string',  value : 'x11,wayland',
        description : 'comma separated list of window systems to support. wayland, x11, surfaceless, drm, etc.')
+option('dri3',           type : 'combo',   value : 'auto', choices : ['auto', 'yes', 'no'],
+       description : 'comma separated list of window systems to support. wayland, x11, surfaceless, drm, etc.')
 option('dri-drivers',    type : 'string',  value : 'i965',
        description : 'comma separated list of dri drivers to build.')
 option('vulkan-drivers', type : 'string',  value : 'intel,amd',
@@ -36,6 +38,8 @@ option('gles2',          type : 'boolean', value : true,
        descirption : 'Build support for OpenGL ES 2.x and 3.x')
 option('opengl',         type : 'boolean', value : true,
        descirption : 'Build support for OpenGL (all versions)')
+option('glx',            type : 'combo',   value : 'auto', choices : ['auto', 'disabled', 'dri', 'xlib', 'gallium-xlib'],
+       descirption : 'Build support for GLX platform')
 option('asm',            type : 'boolean', value : true,
        descirption : 'Build assembly code if possible')
 option('valgrind',       type : 'boolean', vaule : true,

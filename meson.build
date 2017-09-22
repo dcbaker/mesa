@@ -21,7 +21,6 @@
 project('mesa', ['c', 'cpp'], version : '17.3.0-devel', license : 'MIT',
         default_options : ['c_std=c99'])
 
-with_dri3 = true  # XXX: need a switch for this
 with_vulkan_icd_dir = get_option('vulkan_icd_dir')
 with_tests = get_option('build-tests')
 with_valgrind = get_option('valgrind')
@@ -35,11 +34,24 @@ with_gles1 = get_option('gles1')
 with_gles2 = get_option('gles2')
 with_opengl = get_option('opengl')
 with_any_opengl = with_opengl or with_gles1 or with_gles2
-with_shared_glapi = get_option('shared-glapi')
+# Only build shared_glapi if at least one OpenGL API is enabled
+with_shared_glapi = get_option('shared-glapi') and with_any_opengl
+
+with_dri3 = get_option('dri3')
+if with_dri3 == 'auto'
+  if host_machine.system() == 'linux'
+    with_dri3 = true
+  else
+    with_dri3 = false
+ endif
+elif with_dri3 == 'yes'
+  with_dri3 = true
+else
+  with_dri3 = false
+endif
 
 # TODO: these will need options, but at the moment they just control header
 # installs
-with_glx = false
 with_osmesa = false
 
 # shared-glapi is required if at least two OpenGL APIs are being built
@@ -72,6 +84,12 @@ if not with_dri
   with_shared_glapi = false
 endif
 
+# TODO: other OSes
+with_dri_platform = 'drm'
+
+with_gallium = false
+# TODO: gallium drivers
+
 # TODO: there are more platforms required for non-vulkan drivers
 with_platform_wayland = false
 with_platform_x11 = false
@@ -82,19 +100,58 @@ if _platforms != ''
   with_platform_wayland = _split.contains('wayland')
 endif
 
+with_glx = get_option('glx')
+if with_glx != 'disabled'
+  if not (with_platform_x11 and with_any_opengl) and with_glx != 'auto'
+    error('Cannot build GLX support without X11 platform support and at least one OpenGL API')
+  elif with_glx == 'gallium-xlib' 
+    if not with_gallium
+      error('Gallium-xlib based GLX requires at least one gallium driver')
+    elif with_dri
+      error('gallium-xlib conflicts with any dri driver')
+    endif
+  elif with_glx == 'dri' and not with_dri
+    error('dri based GLX requires at least one DRI driver')
+  elif with_glx == 'auto'
+    if with_dri
+      with_glx = 'dri'
+    elif with_gallium
+      with_glx = 'gallium-xlib'
+    elif with_platform_x11 and with_any_opengl
+      with_glx = 'xlib'
+    else
+      with_glx = 'disabled'
+    endif
+  endif
+endif
+
+# TODO: toggle for this
+with_glx_direct = true
+
 if with_vulkan_icd_dir == ''
   with_vulkan_icd_dir = join_paths(get_option('datadir'), 'vulkan/icd.d')
 endif
 
 with_intel_vk = false
 with_amd_vk = false
+with_any_vk = false
 _vulkan_drivers = get_option('vulkan-drivers')
 if _vulkan_drivers != ''
   _split = _vulkan_drivers.split(',')
   with_intel_vk = _split.contains('intel')
   with_amd_vk = _split.contains('amd')
+  with_any_vk = with_amd_vk or with_intel_vk
   if not (with_platform_x11 or with_platform_wayland)
     error('Vulkan requires at least one platform (x11, wayland)')
+  endif
+  if not with_platform_x11 and with_dri3
+    error('Vulkan drivers require dri3 for X11 support')
+  endif
+endif
+
+if with_dri # TODO: or gallium
+  if with_glx == 'disabled' # TODO: or egl
+    error('building dri or gallium drivers require at least one window system')
   endif
 endif
 
@@ -469,23 +526,56 @@ endif
 
 dep_xcb_dri2 = []
 dep_xcb_dri3 = []
+dep_dri2proto = []
+dep_glproto = []
+dep_x11 = []
 if with_platform_x11
-  dep_xcb_dri2 = [
-    dependency('x11-xcb'),
-    dependency('xcb'),
-    dependency('xcb-dri2', version : '>= 1.8'),
-    dependency('xcb-xfixes'),
-  ]
-  if with_dri3
-    dep_xcb_dri3 = [
-      dep_xcb_dri2,
-      dependency('xcb-dri3'),
-      dependency('xcb-present'),
-      dependency('xcb-sync'),
-      dependency('xshmfence', version : '>= 1.1'),
-    ]
+  if with_glx == 'xlib'
+    # TODO
+    error('TODO')
+  elif with_glx == 'gallium-xlib'
+    # TODO
+    error('TODO')
   else
-    # TODO: dri3 is required for vulkan
+    pre_args += '-DGLX_INDIRECT_RENDERING'
+    if with_glx_direct
+      pre_args += '-DGLX_DIRECT_RENDERING'
+    endif
+    if with_dri_platform == 'drm'
+      pre_args += '-DGLX_USE_DRM'
+      dep_dri2proto = dependency('dri2proto', version : '>= 2.8')
+      dep_x11 = [
+        dependency('x11'),
+        dependency('xext'),
+        dependency('xdamage', version : '>= 1.1'),
+        dependency('xfixes'),
+        dependency('x11-xcb'),
+        dependency('xcb'),
+        dependency('xcb-glx', version : '>= 1.8.1'),
+      ]
+    endif
+    # TODO: XF86VIDMODE
+  endif
+  if with_glx != 'disabled'
+    dep_glproto = dependency('glproto', version : '>= 1.4.14')
+  endif
+  if with_any_vk or (with_glx == 'dri' and with_dri_platform == 'drm')
+    dep_xcb_dri2 = [
+      dependency('x11-xcb'),
+      dependency('xcb'),
+      dependency('xcb-dri2', version : '>= 1.8'),
+      dependency('xcb-xfixes'),
+    ]
+    if with_dri3
+      pre_args += '-DHAVE_DRI3'
+      dep_xcb_dri3 = [
+        dep_xcb_dri2,
+        dependency('xcb-dri3'),
+        dependency('xcb-present'),
+        dependency('xcb-sync'),
+        dependency('xshmfence', version : '>= 1.1'),
+      ]
+    endif
   endif
 endif
 
