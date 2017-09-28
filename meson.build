@@ -42,6 +42,11 @@ with_asm = get_option('asm')
 with_appledri = false
 with_windowsdri = false
 
+with_dri_drivers_path = get_option('dri-drivers-path')
+if with_dri_drivers_path == ''
+  with_dri_drivers_path = join_paths(get_option('libdir'), 'dri')
+endif
+
 with_gles1 = get_option('gles1')
 with_gles2 = get_option('gles2')
 with_opengl = get_option('opengl')
@@ -571,6 +576,7 @@ if with_platform_x11
       dependency('xcb-dri2', version : '>= 1.8'),
       dependency('xcb-xfixes'),
     ]
+    pre_args += '-DHAVE_X11_PLATFORM'
     if with_dri3
       pre_args += '-DHAVE_DRI3'
       dep_xcb_dri3 = [
