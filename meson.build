@@ -186,7 +186,7 @@ endif
 
 cc = meson.get_compiler('c')
 if cc.get_id() == 'gcc' and cc.version().version_compare('< 4.4.6')
-  error('When using GCC version 4.2.0 or later required.')
+  error('When using GCC version 4.4.6 or later required.')
 endif
 
 # Define DEBUG for debug and debugoptimized builds
