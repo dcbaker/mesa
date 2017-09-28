@@ -109,11 +109,25 @@ endif
 # TODO: libglvnd
 
 dri_driver_dir = join_paths(get_option('prefix'), get_option('libdir'), 'dri')
-gl_lib_name = 'GL'
-gl_lib_version = '1.2'
+if not with_glvnd
+  gl_lib_name = 'GL'
+  gl_lib_version = '1.2'
+else
+  gl_lib_name = 'GLX_mesa'
+  gl_lib_version = '0'
+  files_libglx += files(
+    'g_glxglvnddispatchfuncs.c',
+    'g_glxglvnddispatchindices.h',
+    'glxglvnd.c',
+    'glxglvnd.h',
+    'glxglvnddispatchfuncs.h',
+  )
+endif
+
 gl_lib_cargs = [
   '-D_RENTRANT', '-DDEFAULT_DRIVER_DIR="@0@"'.format(dri_driver_dir),
 ]
+
 if dep_xf86vm != [] and dep_xf86vm.found()
   gl_lib_cargs += '-DHAVE_XF86VIDMODE'
 endif
@@ -129,7 +143,7 @@ libglx = static_library(
   c_args : [c_vis_args, gl_lib_cargs,
             '-DGL_LIB_NAME="lib@0@.so.@1@"'.format(gl_lib_name, gl_lib_version)],
   link_with : [libloader, libloader_dri3_helper, libmesa_util, libxmlconfig],
-  dependencies : [dep_libdrm, dep_dri2proto, dep_glproto, dep_x11],
+  dependencies : [dep_libdrm, dep_dri2proto, dep_glproto, dep_x11, dep_glvnd],
   build_by_default : false,
 )
 

@@ -138,6 +138,11 @@ if with_glx != 'disabled'
   endif
 endif
 
+with_glvnd = get_option('glvnd')
+if with_glvnd and with_glx != 'dri'
+  message('glvnd requires dri based glx')
+endif
+
 # TODO: toggle for this
 with_glx_direct = true
 
@@ -465,6 +470,12 @@ else
     '-DHAVE_LLVM=0x0@0@@1@@2@'.format(_llvm_version[0], _llvm_version[1], _llvm_patch),
     '-DMESA_LLVM_VERSION_PATCH=@0@'.format(_llvm_patch),
   ]
+endif
+
+dep_glvnd = []
+if with_glvnd
+  dep_glvnd = dependency('libglvnd', version : '>= 0.2.0')
+  pre_args += '-DUSE_LIBGLVND=1'
 endif
 
 # TODO: make this conditional
