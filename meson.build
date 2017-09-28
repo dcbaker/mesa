@@ -510,17 +510,7 @@ dep_selinux = []
 
 # TODO: gallium drivers
 
-# TODO: libglvnd
-
 # TODO: symbol mangling
-
-# TODO: dri handling
-
-# TODO: shared-glapi
-
-# TODO: libgl requirements
-
-# TODO: GLX configuration
 
 # TODO: egl configuration
 
@@ -595,10 +585,6 @@ if with_platform_x11
 endif
 
 # TODO: platforms for !vulkan
-
-# TODO: dri paths
-
-# TODO: dri drivers
 
 # TODO: osmesa
 
