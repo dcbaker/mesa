@@ -21,6 +21,18 @@
 project('mesa', ['c', 'cpp'], version : '17.3.0-devel', license : 'MIT',
         default_options : ['c_std=c99'])
 
+# Arguments for the preprocessor, put these in a separate array from the C and
+# C++ (cpp in meson terminology) arguments since they need to be added to the
+# default arguments for both C and C++.
+pre_args = [
+  '-D__STDC_CONSTANT_MACROS',
+  '-D__STDC_FORMAT_MACROS',
+  '-D__STDC_LIMIT_MACROS',
+  '-DVERSION="@0@"'.format(meson.project_version()),
+  '-DPACKAGE_VERSION=VERSION',
+  '-DPACKAGE_BUGREPORT="https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa"',
+]
+
 with_vulkan_icd_dir = get_option('vulkan_icd_dir')
 with_tests = get_option('build-tests')
 with_valgrind = get_option('valgrind')
@@ -102,6 +114,7 @@ endif
 
 with_glx = get_option('glx')
 if with_glx != 'disabled'
+  pre_args += '-DGLX_USE_TLS'
   if not (with_platform_x11 and with_any_opengl) and with_glx != 'auto'
     error('Cannot build GLX support without X11 platform support and at least one OpenGL API')
   elif with_glx == 'gallium-xlib' 
@@ -165,18 +178,6 @@ cc = meson.get_compiler('c')
 if cc.get_id() == 'gcc' and cc.version().version_compare('< 4.4.6')
   error('When using GCC version 4.2.0 or later required.')
 endif
-
-# Arguments for the preprocessor, put these in a separate array from the C and
-# C++ (cpp in meson terminology) arguments since they need to be added to the
-# default arguments for both C and C++.
-pre_args = [
-  '-D__STDC_CONSTANT_MACROS',
-  '-D__STDC_FORMAT_MACROS',
-  '-D__STDC_LIMIT_MACROS',
-  '-DVERSION="@0@"'.format(meson.project_version()),
-  '-DPACKAGE_VERSION=VERSION',
-  '-DPACKAGE_BUGREPORT="https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa"',
-]
 
 # Define DEBUG for debug and debugoptimized builds
 if get_option('buildtype').startswith('debug')
@@ -529,6 +530,7 @@ dep_xcb_dri3 = []
 dep_dri2proto = []
 dep_glproto = []
 dep_x11 = []
+dep_xf86vm = []
 if with_platform_x11
   if with_glx == 'xlib'
     # TODO
@@ -553,6 +555,8 @@ if with_platform_x11
         dependency('xcb'),
         dependency('xcb-glx', version : '>= 1.8.1'),
       ]
+
+      dep_xf86vm = dependency('xf86vm', required : false)
     endif
     # TODO: XF86VIDMODE
   endif
