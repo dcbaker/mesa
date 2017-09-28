@@ -54,19 +54,6 @@ with_any_opengl = with_opengl or with_gles1 or with_gles2
 # Only build shared_glapi if at least one OpenGL API is enabled
 with_shared_glapi = get_option('shared-glapi') and with_any_opengl
 
-with_dri3 = get_option('dri3')
-if with_dri3 == 'auto'
-  if host_machine.system() == 'linux'
-    with_dri3 = true
-  else
-    with_dri3 = false
- endif
-elif with_dri3 == 'yes'
-  with_dri3 = true
-else
-  with_dri3 = false
-endif
-
 # TODO: these will need options, but at the moment they just control header
 # installs
 with_osmesa = false
@@ -107,6 +94,27 @@ with_dri_platform = 'drm'
 with_gallium = false
 # TODO: gallium drivers
 
+# TODO: conditionalize libdrm requirement
+dep_libdrm = dependency('libdrm', version : '>= 2.4.75')
+pre_args += '-DHAVE_LIBDRM'
+
+with_dri2 = with_dri and with_dri_platform == 'drm' and dep_libdrm.found()
+with_dri3 = get_option('dri3')
+if with_dri3 == 'auto'
+  if host_machine.system() == 'linux' and with_dri2
+    with_dri3 = true
+  else
+    with_dri3 = false
+ endif
+elif with_dri3 == 'yes'
+  if not with_dri2
+    error('dri3 support requires libdrm')
+  endif
+  with_dri3 = true
+else
+  with_dri3 = false
+endif
+
 # TODO: there are more platforms required for non-vulkan drivers
 with_platform_wayland = false
 with_platform_x11 = false
@@ -115,6 +123,18 @@ if _platforms != ''
   _split = _platforms.split(',')
   with_platform_x11 = _split.contains('x11')
   with_platform_wayland = _split.contains('wayland')
+endif
+
+with_gbm = get_option('gbm')
+if with_gbm == 'auto'
+  with_gbm = host_machine.system() == 'linux'
+elif with_gbm == 'yes'
+  if not ['linux', 'bsd'].contains(host_machine.system())
+    error('GBM only supports unix-like platforms')
+  endif
+  with_gbm = true
+else
+  with_gbm = false
 endif
 
 with_glx = get_option('glx')
@@ -444,9 +464,6 @@ dep_expat = dependency('expat')
 # its not linux and and wont
 dep_m = cc.find_library('m', required : false)
 
-# TODO: conditionalize libdrm requirement
-dep_libdrm = dependency('libdrm', version : '>= 2.4.75')
-pre_args += '-DHAVE_LIBDRM'
 dep_libdrm_amdgpu = []
 if with_amd_vk
   dep_libdrm_amdgpu = dependency('libdrm_amdgpu', version : '>= 2.4.82')

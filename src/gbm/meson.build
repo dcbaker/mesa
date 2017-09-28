@@ -18,27 +18,50 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_loader = include_directories('.')
+files_gbm = files(
+  'main/backend.c',
+  'main/backend.h',
+  'main/gbm.c',
+  'main/gbm.h',
+  'main/gbmint.h',
+)
+deps_gbm = []
+args_gbm = []
+links_gbm = []
 
-if with_platform_x11 and with_dri3
-  libloader_dri3_helper = static_library(
-    'loader_dri3_helper',
-    ['loader_dri3_helper.c', 'loader_dri3_helper.h'],
-    c_args : c_vis_args,
-    include_directories : inc_include,
-    dependencies : [dep_xcb_dri3, dep_libdrm],
-    build_by_default : false,
-  )
-else
-  libloader_dri3_helper = []
+if with_dri2
+  files_gbm += files('backends/dri/gbm_dri.c', 'backends/dri/gbm_driint.h')
+  deps_gbm += [dep_libdrm, dep_thread]
+  args_gbm += '-DDEFAULT_DRIVER_DIR="@0@"'.format(dri_driver_dir)
 endif
 
-libloader = static_library(
-  'loader',
-  ['loader.c', 'loader.h', 'pci_id_driver_map.c', 'pci_id_driver_map.h',
-   xmlpool_options_h],
-  c_args : [c_vis_args, '-DUSE_DRICONF'],
-  include_directories : [inc_include, inc_src, inc_util],
-  dependencies : dep_libdrm,
-  build_by_default : false,
+# TODO: wayland support (requires egl)
+
+libgbm = shared_library(
+  'gbm',
+  files_gbm,
+  include_directories : [
+    include_directories('main'), inc_include, inc_src, inc_loader],
+  c_args : args_gbm,
+  link_args : [ld_args_gc_sections],
+  link_with : [libloader, libmesa_util, libxmlconfig],
+  dependencies : [deps_gbm, dep_dl],
+  version : '1.0',
+  install : true,
 )
+
+install_headers('main/gbm.h')
+
+pkg.generate(
+  name : 'gbm',
+  filebase : 'gbm',
+  description : 'Mesa gbm library',
+  version : meson.project_version(),
+  libraries : libgbm,
+  #libraries_private : [dep_dl],  # FIXME: autotools lists this a incomplete
+)
+
+if with_tests
+  gbm_symbols_check = find_program('gbm_symbols_check')
+  test('gbm-symbols-check', gbm_symbols_check)
+endif

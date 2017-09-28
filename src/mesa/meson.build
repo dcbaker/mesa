@@ -571,7 +571,7 @@ libmesa_classic = static_library(
    main_api_exec_c, main_enums_c, format_fallback_c, format_info_h,
    format_pack_c, format_unpack_c, get_hash_h, main_marshal_generated_c,
    main_marshal_generated_h, main_dispatch_h, ir_expression_operation_h,
-   nir_opcodes_h, main_remap_helper_h, matypes_h],
+   nir_opcodes_h, main_remap_helper_h, matypes_h, sha1_h],
   c_args : [c_vis_args, c_msvc_compat_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
   include_directories : [inc_common, include_directories('main')],

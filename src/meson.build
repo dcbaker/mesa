@@ -54,6 +54,8 @@ subdir('intel')
 subdir('mesa')
 subdir('loader')
 subdir('glx')
-# TODO: dri_glx
+if with_gbm
+  subdir('gbm')
+endif
 # TODO: egl
 # TODO: gallium

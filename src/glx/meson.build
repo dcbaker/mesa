@@ -106,8 +106,6 @@ elif with_windowsdri
   #]
 endif
 
-# TODO: libglvnd
-
 dri_driver_dir = join_paths(get_option('prefix'), with_dri_drivers_path)
 if not with_glvnd
   gl_lib_name = 'GL'
@@ -137,8 +135,8 @@ libglx = static_library(
   [files_libglx, glx_indirect_c, glx_indirect_h, glx_indirect_init_c,
    glx_indirect_size_c, glx_indirect_size_h],
   include_directories : [
-    inc_common, inc_glapi,
-    include_directories('../loader', '../../include/GL/internal')
+    inc_common, inc_glapi, inc_loader,
+    include_directories('../../include/GL/internal')
   ],
   c_args : [c_vis_args, gl_lib_cargs,
             '-DGL_LIB_NAME="lib@0@.so.@1@"'.format(gl_lib_name, gl_lib_version)],
@@ -159,8 +157,8 @@ if with_glx == 'dri'
     gl_lib_name,
     dummy_c,  # workaround for bug #2180
     include_directories : [
-      inc_common, inc_glapi, 
-      include_directories('../loader', '../../include/GL/internal')
+      inc_common, inc_glapi, inc_loader,
+      include_directories('../../include/GL/internal')
     ],
     link_with : [libglapi_static, libglapi],
     link_whole : libglx,
