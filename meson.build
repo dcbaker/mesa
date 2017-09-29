@@ -80,7 +80,17 @@ if _drivers != ''
   with_dri = true
 endif
 
-if not with_dri
+with_gallium = false
+with_gallium_radeonsi = false
+_drivers = get_option('gallium-drivers')
+if _drivers != ''
+  _split = _drivers.split(',')
+  with_gallium_radeonsi = _split.contains('radeonsi')
+  with_gallium = true
+  with_dri = true
+endif
+
+if not (with_dri or with_gallium)
   with_gles1 = false
   with_gles2 = false
   with_opengl = false
@@ -90,9 +100,6 @@ endif
 
 # TODO: other OSes
 with_dri_platform = 'drm'
-
-with_gallium = false
-# TODO: gallium drivers
 
 # TODO: conditionalize libdrm requirement
 dep_libdrm = dependency('libdrm', version : '>= 2.4.75')
@@ -192,7 +199,7 @@ if _vulkan_drivers != ''
   endif
 endif
 
-if with_dri # TODO: or gallium
+if with_dri or with_gallium
   if with_glx == 'disabled' # TODO: or egl
     error('building dri or gallium drivers require at least one window system')
   endif
@@ -529,8 +536,6 @@ dep_selinux = []
 
 # TODO: flags for xa, egl, gbm, nin, xvmc, vdpau, omx, va, opencl,
 #       gallium-tests,
-
-# TODO: gallium drivers
 
 # TODO: symbol mangling
 
