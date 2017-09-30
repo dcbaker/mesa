@@ -18,7 +18,32 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_gallium = include_directories('include')
+files_pipe_loader = files(
+  'pipe_loader.c',
+  'pipe_loader.h',
+  'pipe_loader_priv.h',
+  'pipe_loader_sw.c',
+  'driinfo_gallium.h',
+)
 
-subdir('auxiliary')
-subdir('auxiliary/pipe-loader')
+if dep_libdrm.found()
+  files_pipe_loader += files('pipe_loader_drm.c')
+endif
+
+libpipe_loader = static_library(
+  'pipe_loader',
+  files_pipe_loader,
+  include_directories : [
+    inc_util, inc_loader, inc_gallium, inc_include, inc_src,
+    include_directories('..', '../../winsys'),
+  ],
+  c_args : [
+    c_vis_args,
+    '-DPIPE_SEARCH_DIR="@0@"'.format(
+      join_paths(get_option('libdir'), 'gallium-pipe')
+    )
+  ],
+  link_with : [libloader, libxmlconfig],
+  dependencies : [dep_libdrm],
+  build_by_default : false,
+)
