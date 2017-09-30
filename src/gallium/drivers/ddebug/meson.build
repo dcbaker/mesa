@@ -18,11 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-inc_gallium = include_directories('include')
-
-subdir('auxiliary')
-subdir('auxiliary/pipe-loader')
-subdir('drivers/ddebug')
-subdir('drivers/noop')
-subdir('drivers/trace')
-subdir('drivers/rbug')
+libddebug = static_library(
+  'ddebug',
+  files('dd_context.c', 'dd_draw.c', 'dd_pipe.h', 'dd_public.h', 'dd_screen.c',
+        'dd_util.h'),
+  include_directories : [inc_gallium, inc_include, inc_src, inc_gallium_aux],
+  build_by_default : false,
+)
