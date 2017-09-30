@@ -33,7 +33,7 @@ pre_args = [
   '-DPACKAGE_BUGREPORT="https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa"',
 ]
 
-with_vulkan_icd_dir = get_option('vulkan_icd_dir')
+with_vulkan_icd_dir = get_option('vulkan-icd-dir')
 with_tests = get_option('build-tests')
 with_valgrind = get_option('valgrind')
 with_asm = get_option('asm')
