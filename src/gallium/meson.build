@@ -28,12 +28,6 @@ subdir('drivers/trace')
 subdir('drivers/rbug')
 subdir('drivers/radeon')
 subdir('drivers/radeonsi')
-subdir('winsys/sw/null')
-subdir('winsys/sw/dri')
-subdir('winsys/sw/wrapper')
-subdir('winsys/radeon/drm')
-subdir('winsys/amdgpu/drm')
-subdir('state_trackers/dri')
 # TODO: freedreno
 # TODO: i915
 # TODO: nouveau
@@ -48,16 +42,18 @@ subdir('state_trackers/dri')
 # TODO: SWR
 # TODO: vc4
 # TODO: virgl
-# TODO: winsys/sw/null
-# TODO: winsys/sw/xlib
-# TODO: winsys/sw/dri
-# TODO: winsys/sw/kms-dri
-# TODO: winsys/sw/wrapper
 # TODO: clover
+subdir('winsys/sw/null')
+subdir('winsys/sw/dri')
+subdir('winsys/sw/wrapper')
+subdir('winsys/radeon/drm')
+subdir('winsys/amdgpu/drm')
+# TODO: winsys/sw/xlib
+# TODO: winsys/sw/kms-dri
+subdir('state_trackers/dri')
 if with_dri
-  #subdir('targets/dri')
+  subdir('targets/dri')
 endif
-# TODO: dricommon
 # TODO: xlib-glx
 # TODO: OMX
 # TODO: osmesa
