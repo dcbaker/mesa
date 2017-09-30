@@ -641,6 +641,7 @@ if with_platform_x11
   endif
   if with_glx != 'disabled'
     dep_dri2proto = dependency('dri2proto', version : '>= 2.8')
+    dep_glproto = dependency('glproto', version : '>= 1.4.14')
   endif
 endif
 
