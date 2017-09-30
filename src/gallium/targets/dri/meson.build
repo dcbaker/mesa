@@ -30,6 +30,7 @@ gallium_dri_c_args = [
 ]
 gallium_dri_ld_args = []
 gallium_dri_link_with = []
+gallium_dri_link_whole = []
 gallium_dri_depends = []
 gallium_dri_link_depends = []
 gallium_dri_drivers = []
@@ -46,9 +47,9 @@ endif
 if with_gallium_radeonsi
   gallium_dri_c_args += '-DGALLIUM_RADEONSI'
   gallium_dri_link_with += [
-    libnir, libradeonwinsys, libamdgpuwinsys, libradeon, libradeonsi,
-    libamd_common,
+    libnir, libradeonwinsys, libamdgpuwinsys, libradeon, libamd_common,
   ]
+  gallium_dri_link_whole += [libradeonsi]
   gallium_dri_drivers += 'radeonsi_dri.so'
 endif
 
@@ -64,6 +65,7 @@ libgallium_dri = shared_library(
   cpp_args : [cpp_vis_args],
   link_args : [ld_args_gc_sections, gallium_dri_ld_args],
   link_depends : gallium_dri_link_depends,
+  link_whole : gallium_dri_link_whole,
   link_with : [
     gallium_dri_link_with, libws_null, libwsw, libswdri, libmesa_gallium,
     libdricommon, libmegadriver_stub, libdri, libgalliumvl, libgallium,
