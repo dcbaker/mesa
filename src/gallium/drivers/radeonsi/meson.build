@@ -68,6 +68,8 @@ libradeonsi = static_library(
     inc_src, inc_include, inc_gallium, inc_gallium_aux, inc_amd_common,
     include_directories('..'),
   ],
+  c_args : [c_vis_args],
+  cpp_args : [cpp_vis_args],
   dependencies : dep_llvm,
   build_by_default : false,
 )

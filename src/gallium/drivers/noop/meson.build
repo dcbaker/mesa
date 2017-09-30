@@ -21,6 +21,7 @@
 libnoop = static_library(
   'noop',
   files('noop_pipe.c', 'noop_public.h', 'noop_state.c'),
+  c_args : [c_vis_args],
   include_directories : [inc_gallium, inc_include, inc_src, inc_gallium_aux],
   build_by_default : false,
 )

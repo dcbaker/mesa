@@ -23,7 +23,7 @@ libtrace = static_library(
   files('tr_context.c', 'tr_context.h', 'tr_dump.c', 'tr_dump_defines.h',
         'tr_dump.h', 'tr_dump_state.c', 'tr_dump_state.h', 'tr_public.h',
         'tr_screen.c', 'tr_screen.h', 'tr_texture.c', 'tr_texture.h'),
-  c_args : [c_msvc_compat_args],
+  c_args : [c_msvc_compat_args, c_vis_args],
   include_directories : [inc_gallium, inc_gallium_aux, inc_include, inc_src],
   build_by_default : false,
 )

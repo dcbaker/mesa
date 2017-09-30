@@ -23,5 +23,6 @@ librbug = static_library(
   files('rbug_context.c', 'rbug_context.h', 'rbug_core.c', 'rbug_objects.c',
         'rbug_objects.h', 'rbug_public.h', 'rbug_screen.c', 'rbug_screen.h'),
   include_directories : [inc_gallium, inc_gallium_aux, inc_include, inc_src],
+  c_args : [c_vis_args],
   build_by_default : false,
 )
