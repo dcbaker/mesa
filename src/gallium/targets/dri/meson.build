@@ -48,8 +48,8 @@ if with_gallium_radeonsi
   gallium_dri_c_args += '-DGALLIUM_RADEONSI'
   gallium_dri_link_with += [
     libnir, libradeonwinsys, libamdgpuwinsys, libradeon, libamd_common,
+    libradeonsi,
   ]
-  gallium_dri_link_whole += [libradeonsi]
   gallium_dri_drivers += 'radeonsi_dri.so'
 endif
 
@@ -58,27 +58,27 @@ libgallium_dri = shared_library(
   files('target.c'),
   include_directories : [
     inc_common, inc_util, include_directories(
-      '../../state_trackers/dri', '../../../mesa/drivers/dri/common'
+      '../../state_trackers/dri', '../../../mesa/drivers/dri/common',
+      '../../drivers/', '../../winsys',
     )
   ],
-  c_args : [c_vis_args],
+  c_args : [c_vis_args, gallium_dri_c_args],
   cpp_args : [cpp_vis_args],
   link_args : [ld_args_gc_sections, gallium_dri_ld_args],
   link_depends : gallium_dri_link_depends,
-  link_whole : gallium_dri_link_whole,
   link_with : [
-    gallium_dri_link_with, libws_null, libwsw, libswdri, libmesa_gallium,
-    libdricommon, libmegadriver_stub, libdri, libgalliumvl, libgallium,
-    libddebug, libnoop, librbug, libtrace, libglapi,
+    libmesa_gallium, libdricommon, libmegadriver_stub, libdri, libgalliumvl,
+    libgallium, libddebug, libnoop, librbug, libtrace, libglapi,
+    libpipe_loader, libws_null, libwsw, gallium_dri_link_with,
   ],
   dependencies : [
     gallium_dri_depends, dep_selinux, dep_expat, dep_libdrm, dep_llvm,
-  ]
+  ],
 )
 
 meson.add_install_script(
   join_paths(meson.source_root(), 'bin/install_megadrivers.py'),
-  libmesa_dri_drivers.full_path(),
+  libgallium_dri.full_path(),
   with_dri_drivers_path,
   gallium_dri_drivers,
 )

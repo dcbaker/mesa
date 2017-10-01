@@ -31,6 +31,7 @@ pre_args = [
   '-DVERSION="@0@"'.format(meson.project_version()),
   '-DPACKAGE_VERSION=VERSION',
   '-DPACKAGE_BUGREPORT="https://bugs.freedesktop.org/enter_bug.cgi?product=Mesa"',
+  '-D_GNU_SOURCE',
 ]
 
 with_vulkan_icd_dir = get_option('vulkan-icd-dir')
@@ -89,6 +90,7 @@ if _drivers != ''
   with_gallium_radeonsi = _split.contains('radeonsi')
   with_gallium = true
   with_dri = true
+  pre_args += '-DHAVE_PIPELOADER_DRI'
 endif
 
 if not (with_dri or with_gallium)
@@ -526,7 +528,15 @@ dep_expat = dependency('expat')
 # this only exists on linux so either this is linux and it will be found, or
 # its not linux and and wont
 dep_m = cc.find_library('m', required : false)
-dep_libdrm_amdgpu = dependency('libdrm_amdgpu', version : '>= 2.4.82', required : with_amd_vk)
+
+dep_libdrm_amdgpu = []
+dep_libdrm_radeon = []
+if with_amd_vk or with_gallium_radeonsi
+  dep_libdrm_amdgpu = dependency('libdrm_amdgpu', version : '>= 2.4.82')
+endif
+if with_gallium_radeonsi # older radeon too
+  dep_libdrm_radeon = dependency('libdrm_radeon', version : '>= 2.4.82')
+endif
 
 llvm_modules = ['bitwriter', 'engine', 'mcdisassembler', 'mcjit']
 if with_amd_vk
