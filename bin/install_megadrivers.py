@@ -23,6 +23,7 @@
 """Script to install megadriver symlinks for meson."""
 
 import argparse
+import errno
 import os
 import shutil
 
@@ -40,22 +41,24 @@ def main():
 
     if not os.path.exists(to):
         os.makedirs(to)
+    form_ = args.megadriver
 
     for each in args.drivers:
         final = os.path.join(to, each)
         if os.path.exists(final):
             os.unlink(final)
+        print('installing {} to {}'.format(args.megadriver, to))
         try:
-            os.link(args.megadriver, final)
+            os.link(from_, final)
         except OSError as e:
-            if str(e).endswith('Invalid cross-device link'):
+            if e.errno == errno.EXDEV:
                 if cross_found:
                     raise Exception('Something went very wrong.')
                 # if we hit this then we're trying to link from one filesystem,
                 # which is obviously invalid. Instead copy the first binary,
                 # then set that as the from so that the hard links will work
-                shutil.copy(args.megadriver, final)
-                args.megadriver = final
+                shutil.copy(from_, final)
+                from_ = final
                 cross_found = True
             else:
                 raise
