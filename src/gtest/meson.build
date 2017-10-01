@@ -24,3 +24,9 @@ libgtest = static_library(
   include_directories : include_directories('include'),
   build_by_default : false,
 )
+
+idep_gtest = declare_dependency(
+  link_with : libgtest,
+  include_directories : include_directories('include'),
+  compile_args : ['-Wno-sign-compare'],
+)
