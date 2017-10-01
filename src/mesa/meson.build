@@ -354,13 +354,6 @@ files_libmesa_common = files(
   'x86/common_x86.c',
 )
 
-# files() returns a list, but CustomTargets cannot be added to files() itself,
-# so instead we add them to the list of common files this way.
-files_libmesa_common += [
-  nir_opcodes_h, 
-  ir_expression_operation_h,
-]
-
 # mesa files
 files_libmesa_classic = files(
   'math/m_clip_tmp.h',
@@ -703,12 +696,31 @@ get_hash_h = custom_target(
   capture : true,
 )
 
+# files() returns a list, but CustomTargets cannot be added to files() itself,
+# so instead we add them to the list of common files this way.
+files_libmesa_common += [
+  nir_opcodes_h, 
+  ir_expression_operation_h,
+  mesa_lex,
+  program_parse_tab,
+  main_api_exec_c,
+  main_enums_c,
+  format_fallback_c,
+  format_info_h,
+  main_dispatch_h,
+  format_pack_c,
+  format_unpack_c,
+  get_hash_h,
+  main_marshal_generated_c,
+  main_marshal_generated_h,
+  main_remap_helper_h,
+  matypes_h,
+  sha1_h,
+]
+
 libmesa_classic = static_library(
   'mesa_classic',
-  [files_libmesa_common, files_libmesa_classic, mesa_lex, program_parse_tab,
-   main_api_exec_c, main_enums_c, format_fallback_c, format_info_h, sha1_h,
-   format_pack_c, format_unpack_c, get_hash_h, main_marshal_generated_c,
-   main_marshal_generated_h, main_dispatch_h, main_remap_helper_h, matypes_h],
+  [files_libmesa_common, files_libmesa_classic],
   c_args : [c_vis_args, c_msvc_compat_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
   include_directories : [inc_common, include_directories('main')],
@@ -718,7 +730,7 @@ libmesa_classic = static_library(
 
 libmesa_gallium = static_library(
   'mesa_gallium',
-  [files_libmesa_common, files_libmesa_gallium, main_dispatch_h],
+  [files_libmesa_common, files_libmesa_gallium],
   c_args : [c_vis_args, c_msvc_compat_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
   include_directories : [inc_common, include_directories('main')],
