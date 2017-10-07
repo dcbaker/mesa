@@ -134,7 +134,7 @@ libanv_common = static_library(
   'anv_common',
   [libanv_files, anv_entrypoints, anv_extensions_c, nir_opcodes_h],
   include_directories : [inc_common, inc_intel, inc_compiler, inc_drm_uapi,
-                         inc_vulkan_util, inc_vulkan_wsi],
+                         inc_vulkan_util, inc_vulkan_wsi, inc_nir],
   c_args : [c_vis_args, no_override_init_args, '-msse2', anv_flags],
   dependencies : [dep_valgrind, anv_deps, dep_libdrm],
 )
