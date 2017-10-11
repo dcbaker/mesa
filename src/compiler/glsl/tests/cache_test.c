@@ -34,6 +34,7 @@
 #include <limits.h>
 #include <time.h>
 #include <unistd.h>
+#include <sys/types.h>
 
 #include "util/mesa-sha1.h"
 #include "util/disk_cache.h"
@@ -171,7 +172,11 @@ test_disk_cache_create(void)
    unsetenv("XDG_CACHE_HOME");
 
    cache = disk_cache_create("test", "make_check", 0);
-   expect_non_null(cache, "disk_cache_create with no environment variables");
+   if (geteuid() == getuid()) {
+      expect_non_null(cache, "disk_cache_create with no environment variables");
+   } else {
+      expect_null(cache, "disk_cache_create with no environment variables (running as a different user)");
+   }
 
    disk_cache_destroy(cache);
 
