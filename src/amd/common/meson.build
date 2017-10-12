@@ -52,7 +52,11 @@ amd_common_files = files(
 
 libamd_common = static_library(
   'amd_common',
-  [amd_common_files, sid_tables_h, nir_opcodes_h],
+  [files_amd.get(
+    'AMD_COMMON_FILES', 'AMD_COMPILER_FILES', 'AMD_DEBUG_FILES',
+    'AMD_NIR_FILES',
+   ),
+   sid_tables_h, nir_opcodes_h],
   include_directories : [inc_common, inc_compiler, inc_nir, inc_mesa, inc_mapi,
                          inc_amd],
   dependencies : [dep_llvm, dep_thread, dep_elf, dep_libdrm_amdgpu,

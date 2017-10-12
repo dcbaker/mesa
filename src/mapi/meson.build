@@ -18,12 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_mapi_util = files(
-  'u_current.c',
-  'u_current.h',
-  'u_execmem.c',
-  'u_execmem.h',
-)
+files_mapi = mp.load('Makefile.sources')
 
 if with_shared_glapi
   subdir('shared-glapi')

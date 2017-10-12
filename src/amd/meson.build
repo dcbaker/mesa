@@ -20,6 +20,8 @@
 
 inc_amd = include_directories('.')
 
+files_amd = mp.load('Makefile.sources')
+
 subdir('addrlib')
 subdir('common')
 if with_amd_vk

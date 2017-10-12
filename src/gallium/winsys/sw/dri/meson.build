@@ -20,7 +20,7 @@
 
 libswdri = static_library(
   'swdri',
-  files('dri_sw_winsys.c', 'dri_sw_winsys.h'),
+  mp.load('Makefile.sources').get('C_SOURCES'),
   c_args : c_vis_args,
   include_directories : [inc_gallium, inc_include, inc_src, inc_gallium_aux],
   build_by_default : false,

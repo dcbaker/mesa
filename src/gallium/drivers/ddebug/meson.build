@@ -20,8 +20,7 @@
 
 libddebug = static_library(
   'ddebug',
-  files('dd_context.c', 'dd_draw.c', 'dd_pipe.h', 'dd_public.h', 'dd_screen.c',
-        'dd_util.h'),
+  mp.load('Makefile.sources').get('C_SOURCES'),
   c_args : [c_vis_args],
   include_directories : [inc_gallium, inc_include, inc_src, inc_gallium_aux],
   build_by_default : false,

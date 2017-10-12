@@ -20,7 +20,7 @@
 
 libnouveauwinsys = static_library(
   'nouveauwinsys',
-  files('nouveau_drm_public.h', 'nouveau_drm_winsys.c'),
+  mp.load('Makefile.sources').get('C_SOURCES'),
   include_directories : [
     inc_src, inc_include, inc_gallium, inc_gallium_aux, inc_gallium_drivers,
   ],

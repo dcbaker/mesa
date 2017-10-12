@@ -28,16 +28,7 @@ if with_appledri or with_windowsdri
 endif
 
 if with_shared_glapi
-  static_glapi_files += files(
-    '../entry.c',
-    '../entry.h',
-    '../entry_x86-64_tls.h',
-    '../entry_x86_tls.h',
-    '../entry_x86_tsd.h',
-    '../entry_ppc64le_tls.h',
-    '../entry_ppc64le_tsd.h',
-    '../mapi_tmp.h',
-  )
+  static_glapi_files += files_mapi.get('MAPI_BRIDGE_FILES')
   static_glapi_files += glapi_mapi_tmp_h
   static_glapi_args += [
     '-DMAPI_MODE_BRIDGE',
@@ -54,7 +45,7 @@ else
     'glapi.h',
     'glapi_priv.h',
   )
-  static_glapi_files += files_mapi_util
+  static_glapi_files += files_mapi.get('MAPI_UTIL_FILES')
   if with_asm_arch == 'x86'
     static_glapi_files += glapi_x86_s
   elif with_asm_arch == 'x86_64'

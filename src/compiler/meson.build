@@ -22,16 +22,7 @@ inc_compiler = include_directories('.')
 inc_nir = include_directories('nir')
 inc_glsl = include_directories('glsl')
 
-files_libcompiler = files(
-  'builtin_type_macros.h',
-  'glsl_types.cpp',
-  'glsl_types.h',
-  'nir_types.cpp',
-  'nir_types.h',
-  'shader_enums.c',
-  'shader_enums.h',
-  'shader_info.h',
-)
+files_compiler = mp.load('Makefile.sources')
 
 ir_expression_operation_h = custom_target(
   'ir_expression_operation.h',
@@ -43,7 +34,7 @@ ir_expression_operation_h = custom_target(
 
 libcompiler = static_library(
   'compiler',
-  [files_libcompiler, ir_expression_operation_h],
+  [files_compiler.get('LIBCOMPILER_FILES'), ir_expression_operation_h],
   include_directories : [inc_mapi, inc_mesa, inc_compiler, inc_common],
   c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],

@@ -20,23 +20,9 @@
 
 # TODO: android?
 
-files_libintel_common = files(
-  'gen_clflush.h',
-  'gen_debug.c',
-  'gen_debug.h',
-  'gen_decoder.c',
-  'gen_decoder.h',
-  'gen_device_info.c',
-  'gen_device_info.h',
-  'gen_l3_config.c',
-  'gen_l3_config.h',
-  'gen_urb_config.c',
-  'gen_sample_positions.h',
-)
-
 libintel_common = static_library(
   ['intel_common', genX_xml_h],
-  files_libintel_common,
+  files_intel.get('COMMON_FILES'),
   include_directories : [inc_common, inc_intel],
   c_args : [c_vis_args, no_override_init_args],
   dependencies : dep_libdrm,

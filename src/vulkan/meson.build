@@ -24,5 +24,7 @@ vk_android_native_buffer_xml = files('registry/vk_android_native_buffer.xml')
 inc_vulkan_util = include_directories('util')
 inc_vulkan_wsi = include_directories('wsi')
 
+files_vk = mp.load('Makefile.sources')
+
 subdir('util')
 subdir('wsi')

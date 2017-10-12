@@ -57,82 +57,54 @@ block_entrypoints = custom_target(
   depends : anv_entrypoints,
 )
 
-libanv_gen_libs = []
-anv_gen_files = files(
-  'genX_blorp_exec.c',
-  'genX_cmd_buffer.c',
-  'genX_gpu_memcpy.c',
-  'genX_pipeline.c',
-  'genX_query.c',
-  'genX_state.c',
-)
-foreach g : [['70', ['gen7_cmd_buffer.c']], ['75', ['gen7_cmd_buffer.c']],
-             ['80', ['gen8_cmd_buffer.c']], ['90', ['gen8_cmd_buffer.c']],
-             ['100', ['gen8_cmd_buffer.c']]]
-  _gen = g[0]
-  _files = g[1]
-  _lib = static_library(
+libanv_gen_libs = [
+  static_library(
+    'libanv_gen7_5',
+    [files_intel.get('VULKAN_GEN75_FILES'), block_entrypoints,
+     nir_opcodes_h],
+    include_directories : [inc_common, inc_compiler, inc_drm_uapi, inc_intel,
+                           inc_vulkan_util, inc_vulkan_wsi],
+    c_args : [
+      c_vis_args, no_override_init_args, '-msse2', '-DGEN_VERSIONx10=75'
+    ],
+    dependencies : [dep_libdrm, dep_valgrind],
+  )
+]
+foreach _gen : [7, 8, 9, 10]
+  libanv_gen_libs += static_library(
     'libanv_gen@0@'.format(_gen),
-    [anv_gen_files, _files, block_entrypoints, nir_opcodes_h],
+    [files_intel.get('VULKAN_GEN@0@_FILES'.format(_gen)), block_entrypoints,
+     nir_opcodes_h],
     include_directories : [inc_common, inc_compiler, inc_drm_uapi, inc_intel,
                            inc_vulkan_util, inc_vulkan_wsi],
     c_args : [c_vis_args, no_override_init_args, '-msse2',
-              '-DGEN_VERSIONx10=@0@'.format(_gen)],
+              '-DGEN_VERSIONx10=@0@'.format(_gen * 10)],
     dependencies : [dep_libdrm, dep_valgrind],
   )
-  libanv_gen_libs += _lib
 endforeach
-
-libanv_files = files(
-  'anv_allocator.c',
-  'anv_batch_chain.c',
-  'anv_blorp.c',
-  'anv_cmd_buffer.c',
-  'anv_debug_report.c',
-  'anv_descriptor_set.c',
-  'anv_device.c',
-  'anv_dump.c',
-  'anv_formats.c',
-  'anv_genX.h',
-  'anv_image.c',
-  'anv_intel.c',
-  'anv_nir.h',
-  'anv_nir_apply_pipeline_layout.c',
-  'anv_nir_lower_input_attachments.c',
-  'anv_nir_lower_multiview.c',
-  'anv_nir_lower_push_constants.c',
-  'anv_nir_lower_ycbcr_textures.c',
-  'anv_pass.c',
-  'anv_pipeline.c',
-  'anv_pipeline_cache.c',
-  'anv_private.h',
-  'anv_queue.c',
-  'anv_util.c',
-  'anv_wsi.c',
-  'vk_format_info.h',
-)
 
 anv_deps = []
 anv_flags = []
-
+anv_wsi_files = []
 if with_platform_x11
   anv_deps += dep_xcb_dri3
   anv_flags += [
     '-DVK_USE_PLATFORM_XCB_KHR',
     '-DVK_USE_PLATFORM_XLIB_KHR',
   ]
-  libanv_files += files('anv_wsi_x11.c')
+  anv_wsi_files += files_intel.get('VULKAN_WSI_X11_FILES')
 endif
 
 if with_platform_wayland
   anv_deps += dep_wayland_client
   anv_flags += '-DVK_USE_PLATFORM_WAYLAND_KHR'
-  libanv_files += files('anv_wsi_wayland.c')
+  anv_wsi_files += files_intel.get('VULKAN_WSI_WAYLAND_FILES')
 endif
 
 libanv_common = static_library(
   'anv_common',
-  [libanv_files, anv_entrypoints, anv_extensions_c, nir_opcodes_h],
+  [files_intel.get('VULKAN_FILES'), anv_wsi_files, anv_entrypoints,
+   anv_extensions_c, nir_opcodes_h],
   include_directories : [inc_common, inc_intel, inc_compiler, inc_drm_uapi,
                          inc_vulkan_util, inc_vulkan_wsi],
   c_args : [c_vis_args, no_override_init_args, '-msse2', anv_flags],
@@ -141,7 +113,7 @@ libanv_common = static_library(
 
 libvulkan_intel = shared_library(
   'vulkan_intel',
-  [files('anv_gem.c'), block_entrypoints],
+  [files_intel.get('VULKAN_GEM_FILES'), block_entrypoints],
   include_directories : [inc_common, inc_intel, inc_compiler, inc_drm_uapi,
                          inc_vulkan_util, inc_vulkan_wsi],
   link_whole : [libanv_common, libanv_gen_libs],

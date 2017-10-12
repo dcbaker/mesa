@@ -35,10 +35,7 @@ wayland_drm_client_protocol_h = custom_target(
 vulkan_wsi_args = []
 vulkan_wsi_deps = []
 
-files_vulkan_wsi = files(
-  'wsi_common.h',
-  'wsi_common_queue.h',
-)
+files_vulkan_wsi = files_vk.get('VULKAN_WSI_FILES')
 if with_platform_x11
   vulkan_wsi_args += ['-DVK_USE_PLATFORM_XCB_KHR', '-DVK_USE_PLATFORM_XLIB_KHR']
   vulkan_wsi_deps += [
@@ -50,19 +47,13 @@ if with_platform_x11
     dep_xcb_sync,
     dep_xshmfence,
   ]
-  files_vulkan_wsi += files(
-    'wsi_common_x11.c',
-    'wsi_common_x11.h',
-  )
+  files_vulkan_wsi += files_vk.get('VULKAN_WSI_X11_FILES')
 endif
 
 if with_platform_wayland
   vulkan_wsi_deps += dep_wayland_client
   vulkan_wsi_args += ['-DVK_USE_PLATFORM_WAYLAND_KHR']
-  files_vulkan_wsi += files(
-    'wsi_common_wayland.c',
-    'wsi_common_wayland.h',
-  )
+  files_vulkan_wsi += files_vk.get('VULKAN_WSI_WAYLAND_FILES')
   files_vulkan_wsi += [
     wayland_drm_client_protocol_h,
     wayland_drm_protocol_c,

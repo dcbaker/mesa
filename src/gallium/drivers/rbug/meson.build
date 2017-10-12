@@ -20,8 +20,7 @@
 
 librbug = static_library(
   'rbug',
-  files('rbug_context.c', 'rbug_context.h', 'rbug_core.c', 'rbug_objects.c',
-        'rbug_objects.h', 'rbug_public.h', 'rbug_screen.c', 'rbug_screen.h'),
+  mp.load('Makefile.sources').get('C_SOURCES'),
   include_directories : [inc_gallium, inc_gallium_aux, inc_include, inc_src],
   c_args : [c_vis_args],
   build_by_default : false,

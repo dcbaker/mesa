@@ -18,25 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_libdri = files(
-  'dri_context.c',
-  'dri_context.h',
-  'dri_drawable.c',
-  'dri_drawable.h',
-  'dri_helpers.c',
-  'dri_helpers.h',
-  'dri_query_renderer.c',
-  'dri_query_renderer.h',
-  'dri_screen.c',
-  'dri_screen.h',
-)
+files_gallium_dri = mp.load('Makefile.sources')
+files_libdri = files_gallium_dri.get('common_SOURCES')
 
 if with_dri
-  files_libdri += files('drisw.c')
+  files_libdri += files_gallium_dri.get('drisw_SOURCES')
 endif
 
 if with_dri2
-  files_libdri += files('dri2.c', 'dri2_buffer.h')
+  files_libdri += files_gallium_dri.get('dri2_SOURCES')
 endif
 
 libdri_c_args = []

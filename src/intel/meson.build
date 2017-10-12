@@ -20,6 +20,8 @@
 
 inc_intel = include_directories('.')
 
+files_intel = mp.load('Makefile.sources')
+
 subdir('blorp')
 subdir('genxml')
 subdir('common')

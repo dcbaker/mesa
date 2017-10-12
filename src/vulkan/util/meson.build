@@ -18,12 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_vulkan_util = files(
-  'vk_alloc.h',
-  'vk_util.c',
-  'vk_util.h',
-)
-
 vk_enum_to_str = custom_target(
   'vk_enum_to_str',
   input : ['gen_enum_to_str.py', vk_api_xml[0]],
@@ -34,7 +28,7 @@ vk_enum_to_str = custom_target(
 
 libvulkan_util = static_library(
   'vulkan_util',
-  [files_vulkan_util, vk_enum_to_str],
+  [files_vk.get('VULKAN_UTIL_FILES'), vk_enum_to_str],
   include_directories : [inc_common, inc_vulkan],
   c_args : [c_vis_args],
   build_by_default : false,

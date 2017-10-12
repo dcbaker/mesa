@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+files_radv = mp.load('Makefile.sources')
+
 radv_entrypoints = custom_target(
   'radv_entrypoints.[ch]',
   input : ['radv_entrypoints_gen.py', vk_api_xml],
@@ -35,55 +37,9 @@ vk_format_table_c = custom_target(
   capture : true,
 )
 
-libradv_files = files(
-  'winsys/amdgpu/radv_amdgpu_bo.c',
-  'winsys/amdgpu/radv_amdgpu_bo.h',
-  'winsys/amdgpu/radv_amdgpu_cs.c',
-  'winsys/amdgpu/radv_amdgpu_cs.h',
-  'winsys/amdgpu/radv_amdgpu_surface.c',
-  'winsys/amdgpu/radv_amdgpu_surface.h',
-  'winsys/amdgpu/radv_amdgpu_winsys.c',
-  'winsys/amdgpu/radv_amdgpu_winsys.h',
-  'winsys/amdgpu/radv_amdgpu_winsys_public.h',
-  'radv_cmd_buffer.c',
-  'radv_cs.h',
-  'radv_debug.c',
-  'radv_debug.h',
-  'radv_device.c',
-  'radv_descriptor_set.c',
-  'radv_descriptor_set.h',
-  'radv_formats.c',
-  'radv_image.c',
-  'radv_meta.c',
-  'radv_meta.h',
-  'radv_meta_blit.c',
-  'radv_meta_blit2d.c',
-  'radv_meta_buffer.c',
-  'radv_meta_bufimage.c',
-  'radv_meta_clear.c',
-  'radv_meta_copy.c',
-  'radv_meta_decompress.c',
-  'radv_meta_fast_clear.c',
-  'radv_meta_resolve.c',
-  'radv_meta_resolve_cs.c',
-  'radv_meta_resolve_fs.c',
-  'radv_pass.c',
-  'radv_pipeline.c',
-  'radv_pipeline_cache.c',
-  'radv_private.h',
-  'radv_radeon_winsys.h',
-  'radv_shader.c',
-  'radv_shader.h',
-  'radv_query.c',
-  'radv_util.c',
-  'radv_util.h',
-  'radv_wsi.c',
-  'si_cmd_buffer.c',
-  'vk_format.h',
-)
-
 radv_deps = []
 radv_flags = []
+radv_wsi_files = []
 
 if with_platform_x11
   radv_deps += dep_xcb_dri3
@@ -91,18 +47,19 @@ if with_platform_x11
     '-DVK_USE_PLATFORM_XCB_KHR',
     '-DVK_USE_PLATFORM_XLIB_KHR',
   ]
-  libradv_files += files('radv_wsi_x11.c')
+  radv_wsi_files += files_radv.get('VULKAN_WSI_X11_FILES')
 endif
 
 if with_platform_wayland
   radv_deps += dep_wayland_client
   radv_flags += '-DVK_USE_PLATFORM_WAYLAND_KHR'
-  libradv_files += files('radv_wsi_wayland.c')
+  radv_wsi_files += files_radv.get('VULKAN_WSI_WAYLAND_FILES')
 endif
 
 libvulkan_radeon = shared_library(
   'vulkan_radeon',
-  [libradv_files, radv_entrypoints, nir_opcodes_h, vk_format_table_c],
+  [files_radv.get('VULKAN_FILES'), radv_wsi_files, radv_entrypoints,
+   nir_opcodes_h, vk_format_table_c],
   include_directories : [inc_common, inc_amd, inc_amd_common, inc_compiler,
                          inc_vulkan_util, inc_vulkan_wsi],
   link_with : [libamd_common, libamdgpu_addrlib, libvulkan_util,

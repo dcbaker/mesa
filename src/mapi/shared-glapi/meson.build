@@ -38,7 +38,7 @@ shared_glapi_mapi_tmp_h = custom_target(
 
 libglapi = shared_library(
   'glapi',
-  [files_mapi_glapi, files_mapi_util, shared_glapi_mapi_tmp_h],
+  [files_mapi.get('MAPI_GLAPI_FILES', 'MAPI_UTIL_FILES'), shared_glapi_mapi_tmp_h],
   c_args : [c_msvc_compat_args, '-DMAPI_MODE_GLAPI',
             '-DMAPI_ABI_HEADER="@0@"'.format(shared_glapi_mapi_tmp_h.full_path())],
   link_args : [ld_args_gc_sections],

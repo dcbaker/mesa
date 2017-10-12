@@ -18,18 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_pipe_loader = files(
-  'pipe_loader.c',
-  'pipe_loader.h',
-  'pipe_loader_priv.h',
-  'pipe_loader_sw.c',
-  'driinfo_gallium.h',
-)
+files_pipe_loader_sources = mp.load('Makefile.sources')
+files_pipe_loader = files_pipe_loader_sources.get('COMMON_SOURCES')
 
 libpipe_loader_defines = []
 
 if dep_libdrm.found()
-  files_pipe_loader += files('pipe_loader_drm.c')
+  files_pipe_loader += files_pipe_loader_sources.get('DRM_SOURCES')
 endif
 if with_gallium_drisw_kms
   libpipe_loader_defines += '-DHAVE_PIPE_LOADER_KMS'

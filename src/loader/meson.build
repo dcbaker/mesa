@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 inc_loader = include_directories('.')
+files_loader = mp.load('Makefile.sources')
 
 if with_platform_x11 and with_dri3
   libloader_dri3_helper = static_library(
@@ -38,8 +39,7 @@ endif
 
 libloader = static_library(
   'loader',
-  ['loader.c', 'loader.h', 'pci_id_driver_map.c', 'pci_id_driver_map.h',
-   xmlpool_options_h],
+  [files_loader.get('LOADER_C_FILES'), xmlpool_options_h],
   c_args : [c_vis_args, '-DUSE_DRICONF'],
   include_directories : [inc_include, inc_src, inc_util],
   dependencies : dep_libdrm,

@@ -21,70 +21,9 @@
 inc_util = include_directories('.')
 
 subdir('xmlpool')
-
-files_mesa_util = files(
-  'bitscan.c',
-  'bitscan.h',
-  'bitset.h',
-  'build_id.c',
-  'build_id.h',
-  'crc32.c',
-  'crc32.h',
-  'debug.c',
-  'debug.h',
-  'disk_cache.c',
-  'disk_cache.h',
-  'format_r11g11b10f.h',
-  'format_rgb9e5.h',
-  'format_srgb.h',
-  'half_float.c',
-  'half_float.h',
-  'hash_table.c',
-  'hash_table.h',
-  'list.h',
-  'macros.h',
-  'mesa-sha1.c',
-  'mesa-sha1.h',
-  'sha1/sha1.c',
-  'sha1/sha1.h',
-  'ralloc.c',
-  'ralloc.h',
-  'rand_xor.c',
-  'rand_xor.h',
-  'register_allocate.c',
-  'register_allocate.h',
-  'rgtc.c',
-  'rgtc.h',
-  'rounding.h',
-  'set.c',
-  'set.h',
-  'simple_list.h',
-  'slab.c',
-  'slab.h',
-  'string_buffer.c',
-  'string_buffer.h',
-  'strndup.h',
-  'strtod.c',
-  'strtod.h',
-  'texcompress_rgtc_tmp.h',
-  'u_atomic.c',
-  'u_atomic.h',
-  'u_dynarray.h',
-  'u_endian.h',
-  'u_queue.c',
-  'u_queue.h',
-  'u_string.h',
-  'u_thread.h',
-  'u_vector.c',
-  'u_vector.h',
-)
-
 install_data('drirc', install_dir : get_option('sysconfdir'))
 
-files_xmlconfig = files(
-  'xmlconfig.c',
-  'xmlconfig.h',
-)
+util_files = mp.load('Makefile.sources')
 
 format_srgb = custom_target(
   'format_srgb',
@@ -96,7 +35,7 @@ format_srgb = custom_target(
 
 libmesa_util = static_library(
   'mesa_util',
-  [files_mesa_util, format_srgb],
+  [util_files.get('MESA_UTIL_FILES'), format_srgb],
   include_directories : inc_common,
   dependencies : [dep_zlib, dep_clock],
   c_args : [c_msvc_compat_args, c_vis_args],
@@ -105,7 +44,7 @@ libmesa_util = static_library(
 
 libxmlconfig = static_library(
   'xmlconfig',
-  files_xmlconfig,
+  util_files.get('XMLCONFIG_FILES'),
   include_directories : inc_common,
   dependencies : [dep_expat, dep_m],
   c_args : [c_msvc_compat_args, c_vis_args,

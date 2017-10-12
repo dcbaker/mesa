@@ -18,19 +18,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_libblorp = files(
-  'blorp.c',
-  'blorp.h',
-  'blorp_blit.c',
-  'blorp_clear.c',
-  'blorp_nir_builder.h',
-  'blorp_genX_exec.h',
-  'blorp_priv.h',
-)
-
 libblorp = static_library(
   'blorp',
-  [files_libblorp, nir_opcodes_h],
+  [files_intel.get('BLORP_FILES'), nir_opcodes_h],
   include_directories : [inc_common, inc_intel],
   c_args : [c_vis_args, no_override_init_args],
   build_by_default : false,

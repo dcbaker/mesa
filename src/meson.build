@@ -18,6 +18,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+mp = import('automakeparser')
+
 inc_common = include_directories(
   '../include', '.', 'mapi', 'mesa', 'gallium/include', 'gallium/auxiliary')
 inc_mesa = include_directories('mesa')

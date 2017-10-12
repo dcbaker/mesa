@@ -18,19 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-files_gbm = files(
-  'main/backend.c',
-  'main/backend.h',
-  'main/gbm.c',
-  'main/gbm.h',
-  'main/gbmint.h',
-)
+files_gbm = mp.load('Makefile.sources')
 deps_gbm = []
 args_gbm = []
 links_gbm = []
 
+gbm_extra_files = []
 if with_dri2
-  files_gbm += files('backends/dri/gbm_dri.c', 'backends/dri/gbm_driint.h')
+  gbm_extra_files = files_gbm.get('gbm_dri_FILES')
   deps_gbm += [dep_libdrm, dep_thread]
   args_gbm += '-DDEFAULT_DRIVER_DIR="@0@"'.format(dri_driver_dir)
 endif
@@ -39,7 +34,7 @@ endif
 
 libgbm = shared_library(
   'gbm',
-  files_gbm,
+  [files_gbm.get('gbm_core_FILES'), gbm_extra_files],
   include_directories : [
     include_directories('main'), inc_include, inc_src, inc_loader],
   c_args : args_gbm,
