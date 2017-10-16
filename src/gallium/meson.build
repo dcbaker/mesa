@@ -54,7 +54,7 @@ subdir('state_trackers/dri')
 # TODO: virgl
 # TODO: winsys/sw/xlib
 # TODO: clover
-if with_dri
+if with_dri and with_gallium
   subdir('targets/dri')
 endif
 # TODO: xlib-glx
