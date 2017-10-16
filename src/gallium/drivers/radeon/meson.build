@@ -47,7 +47,7 @@ libradeon = static_library(
   'radeon',
   files_libradeon,
   c_args : ['-Wstrict-overflow=0', c_vis_args],
-  dependencies : [dep_llvm, dep_clock],
+  dependencies : [dep_llvm, dep_libdrm, dep_clock],
   include_directories : [
     inc_include, inc_src, inc_gallium, inc_gallium_aux, inc_gallium_drivers,
   ],
