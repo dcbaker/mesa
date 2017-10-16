@@ -10,7 +10,6 @@ MAIN_FILES = \
 	main/accum.h \
 	main/api_arrayelt.c \
 	main/api_arrayelt.h \
-	main/api_exec.c \
 	main/api_exec.h \
 	main/api_loopback.c \
 	main/api_loopback.h \
@@ -73,7 +72,6 @@ MAIN_FILES = \
 	main/drawtex.h \
 	main/enable.c \
 	main/enable.h \
-	main/enums.c \
 	main/enums.h \
 	main/errors.c \
 	main/errors.h \
@@ -96,12 +94,8 @@ MAIN_FILES = \
 	main/ffvertex_prog.h \
 	main/fog.c \
 	main/fog.h \
-	main/format_fallback.c \
-	main/format_info.h \
 	main/format_pack.h \
-	main/format_pack.c \
 	main/format_unpack.h \
-	main/format_unpack.c \
 	main/formatquery.c \
 	main/formatquery.h \
 	main/formats.c \
@@ -112,7 +106,6 @@ MAIN_FILES = \
 	main/framebuffer.h \
 	main/get.c \
 	main/get.h \
-	main/get_hash.h \
 	main/genmipmap.c \
 	main/genmipmap.h \
 	main/getstring.c \
@@ -138,8 +131,6 @@ MAIN_FILES = \
 	main/macros.h \
 	main/marshal.c \
 	main/marshal.h \
-	main/marshal_generated.c \
-	main/marshal_generated.h \
 	main/matrix.c \
 	main/matrix.h \
 	main/mipmap.c \
@@ -264,6 +255,20 @@ MAIN_FILES = \
 	main/vtxfmt.c \
 	main/vtxfmt.h \
 	$(MAIN_ES_FILES)
+
+MESA_GENERATED_FILES = \
+	main/marshal_generated.c \
+	main/marshal_generated.h \
+	main/enums.c \
+	main/api_exec.c \
+	main/format_fallback.c \
+	main/format_info.h \
+	main/format_pack.c \
+	main/format_unpack.c \
+	main/get_hash.h \
+	program/lex.yy.c \
+	program/program_parse.tab.c \
+	program/program_parse.tab.h
 
 MATH_FILES = \
 	math/m_debug.h \
@@ -547,7 +552,6 @@ PROGRAM_FILES = \
 	program/arbprogparse.h \
 	program/ir_to_mesa.cpp \
 	program/ir_to_mesa.h \
-	program/lex.yy.c \
 	program/prog_cache.c \
 	program/prog_cache.h \
 	program/prog_execute.c \
@@ -570,8 +574,6 @@ PROGRAM_FILES = \
 	program/programopt.c \
 	program/programopt.h \
 	program/program_parse_extra.c \
-	program/program_parse.tab.c \
-	program/program_parse.tab.h \
 	program/program_parser.h \
 	program/prog_statevars.c \
 	program/prog_statevars.h \
