@@ -18,6 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+if with_platform_wayland
+  subdir('wayland/wayland-egl')
+endif
+
 c_args_for_egl = []
 link_for_egl = []
 deps_for_egl = []
