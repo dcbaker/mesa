@@ -1,4 +1,4 @@
 [wrap-git]
 directory = dri2proto
 url = https://github.com/dcbaker/dri2proto.git
-revsion = head
+revision = HEAD

@@ -1,4 +1,4 @@
 [wrap-git]
 directory = glproto
 url = https://github.com/dcbaker/glproto.git
-revsion = head
+revision = head
