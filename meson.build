@@ -176,7 +176,7 @@ endif
 # TODO: gnu 
 if host_machine.system() == 'darwin'
   with_dri_platform = 'apple'
-elif host_machine.system == 'windows'
+elif host_machine.system() == 'windows'
   with_dri_platform = 'windows'
 else
   with_dri_platform = 'drm'
