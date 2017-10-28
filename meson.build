@@ -924,7 +924,7 @@ endif
 if dep_m.found()
   gl_priv_libs += '-lm'
 endif
-if dep_dl.found()
+if dep_dl != [] and dep_dl.found()
   gl_priv_libs += '-ldl'
 endif
 
