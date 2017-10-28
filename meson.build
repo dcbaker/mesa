@@ -829,6 +829,7 @@ dep_xcb_dri2 = []
 dep_xcb_dri3 = []
 dep_dri2proto = []
 dep_glproto = []
+dep_xproto = []
 dep_xxf86vm = []
 dep_xcb_dri3 = []
 dep_xcb_present = []
@@ -863,6 +864,9 @@ if with_platform_x11
     )
     dep_glproto = dependency(
       'glproto', version : '>= 1.4.14', fallback : ['glproto', 'ext_glproto']
+    )
+    dep_xproto = dependency(
+      'xproto', version : '>= 7.0.29', fallback : ['xproto', 'ext_xproto']
     )
   endif
   if with_egl
