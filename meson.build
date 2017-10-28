@@ -173,8 +173,14 @@ if with_dri_i915
   dep_libdrm_intel = dependency('libdrm_intel', version : '>= 2.4.75')
 endif
 
-# TODO: other OSes
-with_dri_platform = 'drm'
+# TODO: gnu 
+if host_machine.system() == 'darwin'
+  with_dri_platform = 'apple'
+elif host_machine.system == 'windows'
+  with_dri_platform = 'windows'
+else
+  with_dri_platform = 'drm'
+endif
 
 with_platform_android = false
 with_platform_wayland = false
