@@ -376,7 +376,13 @@ if with_platform_android
   pre_args += '-DHAVE_ANDROID_PLATFORM'
 endif
 
-prog_python2 = find_program('python2')
+# Bascially we can't trust Linux because one distro had decided that python
+# should be python3. macOS doesn't have a python2 binary, however.
+if build_machine.system() != 'darwin'
+  prog_python2 = find_program('python2')
+else
+  prog_python2 = find_program('python')
+endif
 has_mako = run_command(prog_python2, '-c', 'import mako')
 if has_mako.returncode() != 0
   error('Python (2.x) mako module required to build mesa.')
@@ -847,7 +853,9 @@ if with_platform_x11
   endif
   if with_glx != 'disabled'
     dep_dri2proto = dependency('dri2proto', version : '>= 2.8')
-    dep_glproto = dependency('glproto', version : '>= 1.4.14')
+    dep_glproto = dependency(
+      'glproto', version : '>= 1.4.14', fallback : ['glproto', 'ext_glproto']
+    )
   endif
   if with_egl
     dep_xcb_xfixes = dependency('xcb-xfixes')

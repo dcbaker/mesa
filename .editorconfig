@@ -34,6 +34,6 @@ indent_size = 2
 [*.patch]
 trim_trailing_whitespace = false
 
-[meson.build,meson_options.txt]
+[meson.build,meson_options.txt,*.wrap]
 indent_style = space
 indent_size = 2
