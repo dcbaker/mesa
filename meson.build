@@ -684,7 +684,8 @@ endif
 # TODO: some of these may be conditional
 dep_zlib = dependency('zlib', version : '>= 1.2.3')
 dep_thread = dependency('threads')
-if dep_thread.found() and host_machine.system() == 'linux'
+# XXX: This might not be correct for haiku or *BSD system
+if dep_thread.found() and host_machine.system() != 'windows'
   pre_args += '-DHAVE_PTHREAD'
 endif
 dep_elf = dependency('libelf', required : false)
