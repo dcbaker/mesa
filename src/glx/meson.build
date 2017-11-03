@@ -142,6 +142,7 @@ libglx = static_library(
   link_with : [libloader, libloader_dri3_helper, libmesa_util, libxmlconfig],
   dependencies : [
     dep_libdrm, dep_dri2proto, dep_glproto, dep_xproto, dep_x11, dep_glvnd,
+    dep_xextproto,
   ],
   build_by_default : false,
 )
