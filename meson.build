@@ -729,6 +729,7 @@ else
   with_llvm = false
 endif
 
+dep_llvm = []
 if with_llvm
   llvm_modules = ['bitwriter', 'engine', 'mcdisassembler', 'mcjit']
   if with_amd_vk
