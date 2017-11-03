@@ -53,7 +53,6 @@ if get_option('texture-float')
 endif
 
 # XXX: yeah, do these
-with_appledri = false
 with_windowsdri = false
 
 dri_drivers_path = get_option('dri-drivers-path')
@@ -92,7 +91,11 @@ with_dri_swrast = false
 _drivers = get_option('dri-drivers')
 if _drivers == 'auto'
   # TODO: PPC, Sparc
-  if not ['darwin', 'windows'].contains(host_machine.system())
+  if host_machine.system() == 'darwin'
+    # Only swrast would run anway, but softpipe/llvmpipe is soooooo much
+    # faster, so use that
+    _drivers = ''
+  elif host_machine.system() != 'windows'
     if ['x86', 'x86_64'].contains(host_machine.cpu_family())
       _drivers = 'i915,i965,r100,r200,nouveau'
     else
@@ -125,7 +128,9 @@ with_gallium_etnaviv = false
 with_gallium_imx = false
 _drivers = get_option('gallium-drivers')
 if _drivers == 'auto'
-  if not ['darwin', 'windows'].contains(host_machine.system())
+  if host_machine.system() == 'darwin'
+    _drivers = 'swrast'
+  elif host_machine.system() != 'windows'
     # TODO: PPC, Sparc
     if ['x86', 'x86_64'].contains(host_machine.cpu_family())
       _drivers = 'radeonsi,nouveau,swrast'

@@ -23,7 +23,7 @@ inc_glapi = include_directories('.')
 static_glapi_files = []
 static_glapi_args = []
 
-if with_appledri or with_windowsdri
+if with_dri_platform == 'apple' or with_windowsdri
   static_glapi_files += files('glapi_gentable.c')
 endif
 

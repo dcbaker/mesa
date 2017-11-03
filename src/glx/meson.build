@@ -95,7 +95,7 @@ if with_dri3
   files_libglx += files('dri3_glx.c', 'dri3_priv.h')
 endif
 
-if with_appledri
+if with_dri_platform = 'apple'
   files_libglx += files('applegl_glx.c')
 elif with_windowsdri
   files_libglx += files('driwindows_glx.c')
