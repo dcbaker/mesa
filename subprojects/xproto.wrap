@@ -1,0 +1,4 @@
+[wrap-git]
+directory = xproto
+url = https://github.com/dcbaker/xorg-proto-x11proto.git
+revision = head
