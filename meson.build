@@ -720,7 +720,7 @@ endif
 _llvm = get_option('llvm')
 if _llvm == 'auto'
   with_llvm = with_gallium_radeonsi or with_amd_vk or with_gallium_softpipe # TODO:: clover, 
-elif _llvm = 'true'
+elif _llvm == 'true'
   with_llvm = true
 else
   with_llvm = false
