@@ -194,6 +194,13 @@ with_platform_drm = false
 with_platform_surfaceless = false
 egl_native_platform = ''
 _platforms = get_option('platforms')
+if _platforms == 'auto'
+  if ['darwin', 'windows'].contains(host_machine.system())
+    _platforms = 'x11,surfaceless'
+  else
+    _platforms = 'x11,surfaceless,drm'
+  endif
+endif
 if _platforms != ''
   _split = _platforms.split(',')
   with_platform_android = _split.contains('android')

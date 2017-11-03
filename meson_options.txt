@@ -21,8 +21,8 @@
 option(
   'platforms',
   type : 'string',
-  value : 'x11,wayland,drm,surfaceless',
-  description : 'comma separated list of window systems to support. wayland, x11, surfaceless, drm, etc.'
+  value : 'auto',
+  description : 'comma separated list of window systems to support. If set to auto a selection suitable for your OS will be enabled. wayland, x11, surfaceless, drm, etc.'
 )
 option(
   'dri3',
