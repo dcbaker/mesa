@@ -24,7 +24,7 @@ static_glapi_files = []
 static_glapi_args = []
 
 if with_dri_platform == 'apple' or with_windowsdri
-  static_glapi_files += files('glapi_gentable.c')
+  static_glapi_files += glapi_gentable_c
 endif
 
 if with_shared_glapi
