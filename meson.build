@@ -45,7 +45,6 @@ with_tests = get_option('build-tests')
 with_valgrind = get_option('valgrind')
 with_libunwind = get_option('libunwind')
 with_asm = get_option('asm')
-with_llvm = get_option('llvm')
 with_osmesa = get_option('osmesa')
 if get_option('texture-float')
   pre_args += '-DTEXTURE_FLOAT_ENABLED'
@@ -718,14 +717,24 @@ if with_gallium_freedreno
   dep_libdrm_freedreno = dependency('libdrm_freedreno', version : '>= 2.4.74')
 endif
 
-llvm_modules = ['bitwriter', 'engine', 'mcdisassembler', 'mcjit']
-if with_amd_vk
-  llvm_modules += ['amdgpu', 'bitreader', 'ipo']
+_llvm = get_option('llvm')
+if _llvm == 'auto'
+  with_llvm = with_gallium_radeonsi or with_amd_vk or with_gallium_softpipe # TODO:: clover, 
+elif _llvm = 'true'
+  with_llvm = true
+else
+  with_llvm = false
 endif
-dep_llvm = dependency(
-  'llvm', version : '>= 3.9.0', required : with_amd_vk, modules : llvm_modules,
-)
+
 if with_llvm
+  llvm_modules = ['bitwriter', 'engine', 'mcdisassembler', 'mcjit']
+  if with_amd_vk
+    llvm_modules += ['amdgpu', 'bitreader', 'ipo']
+  endif
+  dep_llvm = dependency(
+    'llvm', version : '>= 3.9.0', required : false, modules : llvm_modules,
+  )
+
   if dep_llvm.found()
     _llvm_version = dep_llvm.version().split('.')
     # Development versions of LLVM have an 'svn' suffix, we don't want that for
