@@ -128,13 +128,15 @@ with_dri_nouveau = false
 with_dri_swrast = false
 _drivers = get_option('dri-drivers')
 if _drivers == 'auto'
+  # TODO: PPC, Sparc
   if host_machine.system() == 'linux'
-    # TODO: PPC, Sparc
     if ['x86', 'x86_64'].contains(host_machine.cpu_family())
       _drivers = 'i915,i965,r100,r200,nouveau'
     else
       error('Unknown architecture. Please pass -Ddri-drivers to set driver options. Patches gladly accepted to fix this.')
     endif
+  elif host_machine.system() == 'haiku'
+    _drivers = ''
   elif ['darwin', 'windows', 'cygwin'].contains(host_machine.system())
     # only swrast would make sense here, but gallium swrast is a much better default
     _drivers = ''
@@ -180,7 +182,7 @@ if _drivers == 'auto'
     else
       error('Unknown architecture. Please pass -Dgallium-drivers to set driver options. Patches gladly accepted to fix this.')
     endif
-  elif ['darwin', 'windows', 'cygwin'].contains(host_machine.system())
+  elif ['darwin', 'windows', 'cygwin', 'haiku'].contains(host_machine.system())
     _drivers = 'swrast'
   else
     error('Unknown OS. Please pass -Dgallium-drivers to set driver options. Patches gladly accepted to fix this.')
@@ -217,7 +219,7 @@ if _vulkan_drivers == 'auto'
     else
       error('Unknown architecture. Please pass -Dvulkan-drivers to set driver options. Patches gladly accepted to fix this.')
     endif
-  elif ['darwin', 'windows', 'cygwin'].contains(host_machine.system())
+  elif ['darwin', 'windows', 'cygwin', 'haiku'].contains(host_machine.system())
     # No vulkan driver supports windows or macOS currently
     _vulkan_drivers = ''
   else
@@ -278,6 +280,8 @@ if _platforms == 'auto'
     _platforms = 'x11,wayland,drm,surfaceless'
   elif ['darwin', 'windows', 'cygwin'].contains(host_machine.system())
     _platforms = 'x11,surfaceless'
+  elif host_machine.system() == 'haiku'
+    _platforms = 'haiku'
   else
     error('Unknown OS. Please pass -Dplatforms to set platforms. Patches gladly accepted to fix this.')
   endif
@@ -289,13 +293,26 @@ if _platforms != ''
   with_platform_wayland = _split.contains('wayland')
   with_platform_drm = _split.contains('drm')
   with_platform_surfaceless = _split.contains('surfaceless')
+  with_platform_haiku = _split.contains('haiku')
   egl_native_platform = _split[0]
+endif
+if host_machine.system() == 'haiku'
+  if (with_platform_android or with_platform_x11 or with_platform_wayland or
+      with_platform_drm or with_platform_surfaceless)
+    error('Haiku only supports the Haiku platform')
+  endif
+else
+  if with_platform_haiku
+    error('the haiku platform is only supported for haiku builds.')
+  endif
 endif
 
 with_glx = get_option('glx')
 if with_glx == 'auto'
   if with_dri
     with_glx = 'dri'
+  elif with_platform_haiku
+    with_glx = 'disabled'
   elif with_gallium
     # Even when building just gallium drivers the user probably wants dri
     with_glx = 'dri'
@@ -335,14 +352,20 @@ endif
 
 _egl = get_option('egl')
 if _egl == 'auto'
-  with_egl = with_dri and with_shared_glapi and egl_native_platform != ''
+  if with_platform_haiku
+    with_egl = true
+  else
+    with_egl = with_dri and with_shared_glapi and egl_native_platform != ''
+  endif
 elif _egl == 'true'
-  if not with_dri
-    error('EGL requires dri')
-  elif not with_shared_glapi
-    error('EGL requires shared-glapi')
-  elif egl_native_platform == ''
-    error('No platforms specified, consider -Dplatforms=drm,x11 at least')
+  if not with_platform_haiku
+    if not with_dri
+      error('EGL requires dri')
+    elif not with_shared_glapi
+      error('EGL requires shared-glapi')
+    elif egl_native_platform == ''
+      error('No platforms specified, consider -Dplatforms=drm,x11 at least')
+    endif
   endif
   with_egl = true
 else
@@ -385,7 +408,9 @@ endif
 
 with_glvnd = get_option('glvnd')
 if with_glvnd
-  if with_glx == 'xlib' or with_glx == 'gallium-xlib'
+  if ['haiku', 'windows', 'darwin', 'cygwin'].contians(build_machine.system())
+    error('glvnd is only support on unix-like platforms (except macos and haiku)')
+  elif with_glx == 'xlib' or with_glx == 'gallium-xlib'
     error('Cannot build glvnd support for GLX that is not DRI based.')
   elif with_glx == 'disabled' and not with_egl
     error('glvnd requires DRI based GLX and/or EGL')
@@ -679,6 +704,9 @@ if with_platform_android
     dependency('sync'),
   ]
   pre_args += '-DHAVE_ANDROID_PLATFORM'
+endif
+if with_platform_haiku
+  pre_args += '-DHAVE_HAIKU_PLATFORM'
 endif
 
 prog_python2 = find_program('python2')
@@ -1001,7 +1029,10 @@ if with_amd_vk or with_gallium_radeonsi or with_gallium_r600 or with_gallium_ope
 else
   dep_elf = []
 endif
-dep_expat = dependency('expat')
+dep_expat = []
+if host_machine.system() != 'haiku'
+  dep_expat = dependency('expat')
+endif
 # this only exists on linux so either this is linux and it will be found, or
 # its not linux and and wont
 dep_m = cc.find_library('m', required : false)
@@ -1276,7 +1307,7 @@ if with_dri_platform == 'drm'
 endif
 
 gl_priv_libs = []
-if dep_thread.found()
+if not ['windows', 'cygwin', 'haiku'].contains(host_machine.system())
   gl_priv_libs += ['-lpthread', '-pthread']
 endif
 if dep_m.found()

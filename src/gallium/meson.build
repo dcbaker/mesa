@@ -187,4 +187,9 @@ endif
 if with_gallium_st_nine
   subdir('targets/d3dadapter9')
 endif
+if with_platform_haiku
+  subdir('winsys/sw/hgl')
+  subdir('state_trackers/hgl')
+  subdir('targets/haiku-softpipe')
+endif
 # TODO: tests

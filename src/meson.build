@@ -21,6 +21,7 @@
 inc_common = include_directories(
   '../include', '.', 'mapi', 'mesa', 'gallium/include', 'gallium/auxiliary')
 inc_mesa = include_directories('mesa')
+inc_mesa_main = include_directories('mesa/main')
 inc_mapi = include_directories('mapi')
 inc_src = include_directories('.')
 inc_gallium = include_directories('gallium/include')
@@ -69,6 +70,9 @@ if with_gbm
   subdir('gbm')
 else
   inc_gbm = []
+endif
+if with_platform_haiku
+  subdir('hgl')
 endif
 if with_egl
   subdir('egl')
