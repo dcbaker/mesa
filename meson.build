@@ -29,6 +29,10 @@ project(
   default_options : ['buildtype=debugoptimized', 'c_std=c99', 'cpp_std=c++11']
 )
 
+# True Unix-like systems, does not include macos or haiku which are unix-based,
+# but diverge from classic unix-ness
+system_is_unix_like = ['linux', 'freebsd', 'netbsd', 'openbsd', 'dragonfly'].contains(host_machine.system())
+
 # Arguments for the preprocessor, put these in a separate array from the C and
 # C++ (cpp in meson terminology) arguments since they need to be added to the
 # default arguments for both C and C++.
@@ -67,8 +71,18 @@ with_gles2 = get_option('gles2')
 with_opengl = get_option('opengl')
 with_any_opengl = with_opengl or with_gles1 or with_gles2
 # Only build shared_glapi if at least one OpenGL API is enabled
-with_shared_glapi = get_option('shared-glapi') and with_any_opengl
-
+_mode = get_option('shared-glapi')
+if _mode == 'auto'
+  if system_is_unix_like
+    with_shared_glapi = with_any_opengl
+  else
+    with_shared_glapi = false
+  endif
+elif _mode == 'true'
+  with_shared_glapi = true
+else
+  with_shared_glapi = false
+endif
 
 # shared-glapi is required if at least two OpenGL APIs are being built
 if not with_shared_glapi
