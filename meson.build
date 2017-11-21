@@ -66,8 +66,30 @@ if dri_search_path == ''
   dri_search_path = join_paths(get_option('prefix'), dri_drivers_path)
 endif
 
-with_gles1 = get_option('gles1')
-with_gles2 = get_option('gles2')
+_gles1 = get_option('gles1')
+if _gles1 == 'auto'
+  with_gles1 = system_is_unix_like
+elif _gles1 == 'true'
+  if ['haiku', 'windows'].contains(host_machine.system())
+    error('GLES1 not supported on the following OSes: haiku, windows')
+  endif
+  with_gles1 = true
+else
+  with_gles1 = false
+endif
+
+_gles2 = get_option('gles2')
+if _gles2 == 'auto'
+  with_gles2 = system_is_unix_like
+elif _gles2 == 'true'
+  if ['haiku', 'windows'].contains(host_machine.system())
+    error('GLES2 not supported on the following OSes: haiku, windows')
+  endif
+  with_gles2 = true
+else
+  with_gles2 = false
+endif
+
 with_opengl = get_option('opengl')
 with_any_opengl = with_opengl or with_gles1 or with_gles2
 # Only build shared_glapi if at least one OpenGL API is enabled
