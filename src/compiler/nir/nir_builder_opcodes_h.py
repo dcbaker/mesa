@@ -65,7 +65,7 @@ nir_load_${name}(nir_builder *build)
 #endif /* _NIR_BUILDER_OPCODES_ */"""
 
 from nir_opcodes import opcodes
-from nir_intrinsics import system_values
+from nir_intrinsics import SYSTEM_VALUES
 from mako.template import Template
 
-print Template(template).render(opcodes=opcodes, system_values=system_values)
+print Template(template).render(opcodes=opcodes, system_values=SYSTEM_VALUES)

@@ -45,7 +45,7 @@ const nir_intrinsic_info nir_intrinsic_infos[nir_num_intrinsics] = {
 };
 """
 
-from nir_intrinsics import intr_opcodes
+from nir_intrinsics import INTR_OPCODES
 from mako.template import Template
 
-print Template(template).render(intr_opcodes=intr_opcodes)
+print Template(template).render(intr_opcodes=INTR_OPCODES)
