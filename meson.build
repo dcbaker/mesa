@@ -100,7 +100,7 @@ endif
 
 # shared-glapi is required if at least two OpenGL APIs are being built
 if not with_shared_glapi
-  if ((with_gles1 == 'true' and with_gles2 == 'true') or 
+  if ((with_gles1 == 'true' and with_gles2 == 'true') or
       (with_gles1 == 'true' and with_opengl) or
       (with_gles2 == 'true' and with_opengl))
     error('shared-glapi required for building two or more of OpenGL, OpenGL ES 1.x, OpenGL ES 2.x')
@@ -397,7 +397,7 @@ endif
 if with_glx != 'disabled'
   if not (with_platform_x11 and with_any_opengl)
     error('Cannot build GLX support without X11 platform support and at least one OpenGL API')
-  elif with_glx == 'gallium-xlib' 
+  elif with_glx == 'gallium-xlib'
     if not with_gallium
       error('Gallium-xlib based GLX requires at least one gallium driver')
     elif not with_gallium_softpipe
@@ -405,7 +405,7 @@ if with_glx != 'disabled'
     elif with_dri
       error('gallium-xlib conflicts with any dri driver')
     endif
-  elif with_glx == 'xlib' 
+  elif with_glx == 'xlib'
     if with_dri
       error('xlib conflicts with any dri driver')
     endif
@@ -1061,7 +1061,7 @@ if not cc.links('''#include <stdint.h>
   pre_args += '-DMISSING_64BIT_ATOMICS'
 endif
 
-dep_ws2_32 = cc.find_library('ws2_32', required : with_platform_windows) 
+dep_ws2_32 = cc.find_library('ws2_32', required : with_platform_windows)
 
 # TODO: shared/static? Is this even worth doing?
 
@@ -1116,7 +1116,7 @@ foreach h : ['xlocale.h', 'sys/sysctl.h', 'linux/futex.h', 'endian.h', 'dlfcn.h'
   endif
 endforeach
 
-foreach f : ['strtof', 'mkostemp', 'posix_memalign', 'timespec_get', 'memfd_create', 'random_r']
+foreach f : ['strtof', 'mkostemp', 'timespec_get', 'memfd_create', 'random_r']
   if cc.has_function(f)
     pre_args += '-DHAVE_@0@'.format(f.to_upper())
   endif
@@ -1127,6 +1127,16 @@ if cc.has_header_symbol('errno.h', 'program_invocation_name',
    pre_args += '-DHAVE_PROGRAM_INVOCATION_NAME'
 elif with_tools.contains('intel')
   error('Intel tools require the program_invocation_name variable')
+endif
+
+# MinGW provides a __builtin_posix_memalign function, but not a posix_memalign.
+# This means that this check will succeed, but then compilation will later
+# fail. MSVC doesn't have this function at all, so only check for it on
+# non-windows platforms.
+if host_machine.system() != 'windows'
+  if cc.has_function('posix_memalign')
+    pre_args += '-DHAVE_POSIX_MEMALIGN'
+  endif
 endif
 
 # strtod locale support
@@ -1520,7 +1530,7 @@ if with_platform_x11
   if with_glx == 'dri' or with_glx == 'gallium-xlib'
     dep_glproto = dependency('glproto', version : '>= 1.4.14')
   endif
-  if with_glx == 'dri' 
+  if with_glx == 'dri'
     if with_dri_platform == 'drm'
       dep_dri2proto = dependency('dri2proto', version : '>= 2.8')
       dep_xxf86vm = dependency('xxf86vm')
