@@ -27,11 +27,19 @@ es1_glapi_mapi_tmp_h = custom_target(
   capture : true,
 )
 
+_es1_c_args = []
+if with_platform_windows
+  _es1_c_args += ['-D_GDI32_', '-DBUILD_GL32']
+endif
+
 libglesv1_cm = shared_library(
   'GLESv1_CM',
   ['../entry.c', es1_glapi_mapi_tmp_h],
   c_args : [
-    c_msvc_compat_args, c_vis_args, '-DMAPI_MODE_BRIDGE',
+    c_msvc_compat_args,
+    c_vis_args,
+    _es1_c_args,
+    '-DMAPI_MODE_BRIDGE',
     '-DMAPI_ABI_HEADER="@0@"'.format(es1_glapi_mapi_tmp_h.full_path()),
   ],
   link_args : [ld_args_gc_sections],
