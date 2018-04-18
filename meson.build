@@ -1092,7 +1092,7 @@ if with_amd_vk or with_gallium_radeonsi or with_gallium_r600 or with_gallium_ope
 else
   dep_elf = null_dep
 endif
-dep_expat = dependency('expat')
+dep_expat = dependency('expat', fallback : ['expat', 'expat_dep'])
 # this only exists on linux so either this is linux and it will be found, or
 # its not linux and and wont
 dep_m = cc.find_library('m', required : false)
