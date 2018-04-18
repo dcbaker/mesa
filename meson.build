@@ -1086,12 +1086,21 @@ foreach h : ['xlocale.h', 'sys/sysctl.h', 'linux/futex.h', 'endian.h', 'dlfcn.h'
     pre_args += '-DHAVE_@0@'.format(h.to_upper().underscorify())
   endif
 endforeach
-
-foreach f : ['strtof', 'mkostemp', 'posix_memalign', 'timespec_get', 'memfd_create']
+foreach f : ['strtof', 'mkostemp', 'timespec_get', 'memfd_create']
   if cc.has_function(f)
     pre_args += '-DHAVE_@0@'.format(f.to_upper())
   endif
 endforeach
+
+# MinGW provides a __builtin_posix_memalign function, but not a posix_memalign.
+# This means that this check will succeed, but then compilation will later
+# fail. MSVC doesn't have this function at all, so only check for it on
+# non-windows platforms.
+if host_machine.system() != 'windows'
+  if cc.has_function('posix_memalign')
+    pre_args += '-DHAVE_POSIX_MEMALIGN'
+  endif
+endif
 
 # strtod locale support
 if cc.links('''
