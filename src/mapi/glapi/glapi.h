@@ -114,7 +114,7 @@ _GLAPI_EXPORT extern void *_glapi_Context;
 #endif /* defined (GLX_USE_TLS) */
 
 
-void
+_GLAPI_EXPORT void
 _glapi_destroy_multithread(void);
 
 
