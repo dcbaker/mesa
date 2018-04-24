@@ -1304,52 +1304,88 @@ else
   _llvm_version = '>= 3.3.0'
 endif
 
-_shared_llvm = get_option('shared-llvm')
 
 _llvm = get_option('llvm')
-dep_llvm = null_dep
-with_llvm = false
-if _llvm != 'false'
-  dep_llvm = dependency(
-    'llvm',
-    version : _llvm_version,
-    modules : llvm_modules,
-    optional_modules : llvm_optional_modules,
-    required : (
-      with_amd_vk or with_gallium_radeonsi or with_gallium_swr or
-      with_gallium_opencl or _llvm == 'true'
-    ),
-    static : not _shared_llvm,
-  )
-  with_llvm = dep_llvm.found()
-endif
-if with_llvm
-  _llvm_version = dep_llvm.version().split('.')
-
-  # 3 digits versions in LLVM only started from 3.4.1 on
-  if dep_llvm.version().version_compare('>= 3.4.1')
-    _llvm_patch = _llvm_version[2]
+llvm_wrap = get_option('llvm-wrap')
+if llvm_wrap != '' and _llvm != 'false'
+  dep_llvm = subproject(llvm_wrap).get_variable('ext_llvm')
+  if dep_llvm.version().version_compare(_llvm_version)
+    with_llvm = true
+    _ver = dep_llvm.version().split('.')
+    pre_args += [
+      '-DHAVE_LLVM=0x0@0@0@1@'.format(_ver[0], _ver[1]),
+      '-DMESA_LLVM_VERSION_PATCH=@0@'.format(_ver[2]),
+    ]
+  elif _llvm == 'auto'
+    with_llvm = false
+    dep_llvm = null_dep
   else
-    _llvm_patch = '0'
+    error('LLVM wrap version is @0@, but components require @1@'.format(
+      dep_llvm.version(), _llvm_version))
   endif
-
-  pre_args += [
-    '-DHAVE_LLVM=0x0@0@0@1@'.format(_llvm_version[0], _llvm_version[1]),
-    '-DMESA_LLVM_VERSION_PATCH=@0@'.format(_llvm_patch),
-  ]
-
-  # LLVM can be built without rtti, turning off rtti changes the ABI of C++
-  # programs, so we need to build all C++ code in mesa without rtti as well to
-  # ensure that linking works.
-  if dep_llvm.get_configtool_variable('has-rtti') == 'NO'
-    if cc.get_id() == 'msvc'
-      cpp_args += '/GR-'
-    else
-      cpp_args += '-fno-rtti'
+else
+  llvm_modules = ['bitwriter', 'engine', 'mcdisassembler', 'mcjit']
+  llvm_optional_modules = []
+  if with_amd_vk or with_gallium_radeonsi or with_gallium_r600
+    llvm_modules += ['amdgpu', 'bitreader', 'ipo']
+    if with_gallium_r600
+      llvm_modules += 'asmparser'
     endif
   endif
-elif with_amd_vk or with_gallium_radeonsi or with_gallium_swr
-  error('The following drivers require LLVM: Radv, RadeonSI, SWR. One of these is enabled, but LLVM is disabled.')
+  if with_gallium_opencl
+    llvm_modules += [
+      'all-targets', 'linker', 'coverage', 'instrumentation', 'ipo', 'irreader',
+      'lto', 'option', 'objcarcopts', 'profiledata',
+    ]
+    llvm_optional_modules += ['coroutines', 'opencl']
+  endif
+
+  _shared_llvm = get_option('shared-llvm')
+  if _llvm != 'false'
+    dep_llvm = dependency(
+      'llvm',
+      version : _llvm_version,
+      modules : llvm_modules,
+      optional_modules : llvm_optional_modules,
+      required : (
+        with_amd_vk or with_gallium_radeonsi or with_gallium_swr or
+        with_gallium_opencl or _llvm == 'true'
+      ),
+      static : not _shared_llvm,
+    )
+    with_llvm = dep_llvm.found()
+  else
+    dep_llvm = null_dep
+    with_llvm = false
+  endif
+  if with_llvm
+    _llvm_version = dep_llvm.version().split('.')
+
+    # 3 digits versions in LLVM only started from 3.4.1 on
+    if dep_llvm.version().version_compare('>= 3.4.1')
+      _llvm_patch = _llvm_version[2]
+    else
+      _llvm_patch = '0'
+    endif
+
+    pre_args += [
+      '-DHAVE_LLVM=0x0@0@0@1@'.format(_llvm_version[0], _llvm_version[1]),
+      '-DMESA_LLVM_VERSION_PATCH=@0@'.format(_llvm_patch),
+    ]
+
+    # LLVM can be built without rtti, turning off rtti changes the ABI of C++
+    # programs, so we need to build all C++ code in mesa without rtti as well to
+    # ensure that linking works.
+    if dep_llvm.get_configtool_variable('has-rtti') == 'NO'
+      if cc.get_id() == 'msvc'
+        cpp_args += '/GR-'
+      else
+        cpp_args += '-fno-rtti'
+      endif
+    endif
+  elif with_amd_vk or with_gallium_radeonsi or with_gallium_swr
+    error('The following drivers require LLVM: Radv, RadeonSI, SWR. One of these is enabled, but LLVM is disabled.')
+  endif
 endif
 
 dep_glvnd = null_dep

@@ -248,6 +248,12 @@ option(
   description : 'Whether to link llvm shared or statically.'
 )
 option(
+  'llvm-wrap',
+  type : 'string',
+  value : '',
+  description : 'Use LLVM wrap dependency. This bypasses llvm-config, and is useful for cross compiling. This should be set to the value of the suproject.  It expects an external_dependency called "ext_llvm"',
+)
+option(
   'valgrind',
   type : 'combo',
   value : 'auto',

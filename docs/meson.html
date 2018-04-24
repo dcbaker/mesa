@@ -133,6 +133,72 @@ llvm-config (and llvm-config$version and llvm-config-$version), so using an
 LLVM from a non-standard path is as easy as
 <code>PATH=/path/with/llvm-config:$PATH meson build</code>.
 </p></dd>
+
+<dd><p>On windows (and in other cases), using llvm-config is either undesirable
+or impossible. Meson's solution for this is a
+<a href="http://mesonbuild.com/Wrap-dependency-system-manual.html">wrap</a>, in
+this case a "binary wrap". Follow the steps below:</p>
+<ul>
+    <li>Install the binaries and headers into a directory under the <code>$mesa_src/subprojects</code></li>
+    <li>Add a meson build.build file to that directory (more on that later)</li>
+    <li>add <code>-Dllvm-wrap=$directory</code> to your meson configuration (where $directory is the the directory under subprojects</li>
+</ul>
+
+<p>The wrap file must define the following:</p>
+<ul>
+    <li><code>ext_llvm</code>: a <code>declare_dependency()</code> object with include_directories, dependencies, and version set)</li>
+</ul>
+
+<p>It may also define:</p>
+<ul>
+    <li><code>irbuilder_h</code>: a <code>file()</code> object pointing to llvm/IR/IRBuilder.h (for SWR)</li>
+</ul>
+
+<p>such a meson.build file might look like:</p>
+<pre>
+project('llvm', ['cpp'])
+
+cpp = meson.get_compiler('cpp')
+
+_deps = []
+_search = join_paths(meson.current_source_dir(), 'lib')
+foreach d : ['libLLVMCodeGen', 'libLLVMScalarOpts', 'libLLVMAnalysis',
+             'libLLVMTransformUtils', 'libLLVMCore', 'libLLVMX86CodeGen',
+             'libLLVMSelectionDAG', 'libLLVMipo', 'libLLVMAsmPrinter',
+             'libLLVMInstCombine', 'libLLVMInstrumentation', 'libLLVMMC',
+             'libLLVMGlobalISel', 'libLLVMObjectYAML', 'libLLVMDebugInfoPDB',
+             'libLLVMVectorize', 'libLLVMPasses', 'libLLVMSupport',
+             'libLLVMLTO', 'libLLVMObject', 'libLLVMDebugInfoCodeView',
+             'libLLVMDebugInfoDWARF', 'libLLVMOrcJIT', 'libLLVMProfileData',
+             'libLLVMObjCARCOpts', 'libLLVMBitReader', 'libLLVMCoroutines',
+             'libLLVMBitWriter', 'libLLVMRuntimeDyld', 'libLLVMMIRParser',
+             'libLLVMX86Desc', 'libLLVMAsmParser', 'libLLVMTableGen',
+             'libLLVMFuzzMutate', 'libLLVMLinker', 'libLLVMMCParser',
+             'libLLVMExecutionEngine', 'libLLVMCoverage', 'libLLVMInterpreter',
+             'libLLVMTarget', 'libLLVMX86AsmParser', 'libLLVMSymbolize',
+             'libLLVMDebugInfoMSF', 'libLLVMMCJIT', 'libLLVMXRay',
+             'libLLVMX86AsmPrinter', 'libLLVMX86Disassembler',
+             'libLLVMMCDisassembler', 'libLLVMOption', 'libLLVMIRReader',
+             'libLLVMLibDriver', 'libLLVMDlltoolDriver', 'libLLVMDemangle',
+             'libLLVMBinaryFormat', 'libLLVMLineEditor',
+             'libLLVMWindowsManifest', 'libLLVMX86Info', 'libLLVMX86Utils']
+  _deps += cpp.find_library(d, dirs : _search)
+endforeach
+
+ext_llvm = declare_dependency(
+  include_directories : include_directories('include'),
+  dependencies : _deps,
+  version : '6.0.0',
+)
+
+irbuilder_h = files('include/llvm/IR/IRBuilder.h')
+</pre>
+
+<p>It is very important that version is defined and is accurate, if it is not,
+workarounds for the wrong version of LLVM might be used resulting in build
+failures.</p>
+
+</dd>
 </dl>
 
 <dl>
