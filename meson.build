@@ -1629,8 +1629,11 @@ endif
 
 pkg = import('pkgconfig')
 
+prog_nm = find_program('nm', required : false)
 env_test = environment()
-env_test.set('NM', find_program('nm').path())
+if prog_nm.found()
+  env_test.set('NM', prog_nm.path())
+endif
 
 subdir('include')
 subdir('bin')

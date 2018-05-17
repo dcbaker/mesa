@@ -195,7 +195,7 @@ pkg.generate(
   extra_cflags : gl_pkgconfig_c_flags,
 )
 
-if with_tests
+if with_tests and prog_nm.found()
   if with_glvnd
     # TODO: add glvnd symbol check
   else
