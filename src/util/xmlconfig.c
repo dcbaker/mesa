@@ -39,6 +39,7 @@
 #include <errno.h>
 #include <dirent.h>
 #include <fnmatch.h>
+#include "strndup.h"
 #include "xmlconfig.h"
 #include "u_process.h"
 
