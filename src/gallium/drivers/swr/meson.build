@@ -191,6 +191,7 @@ swr_arch_defines = []
 
 swr_avx_args = cpp.first_supported_argument(
   '-target-cpu=sandybridge', '-mavx', '-march=core-avx', '-tp=sandybridge',
+  '/arch:AVX',
   prefix : '''
     #if !defined(__AVX__)
     # error
@@ -215,7 +216,7 @@ endif
 
 if with_swr_arches.contains('avx2')
   swr_avx2_args = cpp.first_supported_argument(
-    '-target-cpu=haswell', '-march=core-avx2', '-tp=haswell',
+    '-target-cpu=haswell', '-march=core-avx2', '-tp=haswell', '/arch:AVX2',
     prefix : '''
       #if !defined(__AVX2__)
       # error
