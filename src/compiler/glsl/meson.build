@@ -229,7 +229,7 @@ libglsl_standalone = static_library(
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
   include_directories : [inc_common],
   link_with : [libglsl, libglsl_util, libmesa_util],
-  dependencies : [dep_thread],
+  dependencies : [dep_thread, idep_getopt],
   build_by_default : false,
 )
 
@@ -238,7 +238,7 @@ glsl_compiler = executable(
   'main.cpp',
   c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
-  dependencies : [dep_clock, dep_thread],
+  dependencies : [dep_clock, dep_thread, idep_getopt],
   include_directories : [inc_common],
   link_with : [libglsl_standalone],
   build_by_default : with_tools.contains('glsl'),
@@ -252,7 +252,7 @@ glsl_test = executable(
   c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
   cpp_args : [cpp_vis_args, cpp_msvc_compat_args],
   include_directories : [inc_common],
-  dependencies : [dep_clock, dep_thread],
+  dependencies : [dep_clock, dep_thread, idep_getopt],
   link_with : [libglsl, libglsl_standalone, libglsl_util],
   build_by_default : with_tools.contains('glsl'),
   install : with_tools.contains('glsl'),
