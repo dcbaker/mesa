@@ -30,6 +30,8 @@
 #include <assert.h>
 #include "hash_table.h"
 
+#define SIZE 10000
+
 static uint32_t
 key_value(const void *key)
 {
@@ -53,8 +55,7 @@ main(int argc, char **argv)
 {
    struct hash_table *ht;
    struct hash_entry *entry;
-   unsigned size = 10000;
-   uint32_t keys[size];
+   uint32_t keys[SIZE];
    uint32_t i, random_value;
 
    (void) argc;
@@ -62,7 +63,7 @@ main(int argc, char **argv)
 
    ht = _mesa_hash_table_create(NULL, key_value, uint32_t_key_equals);
 
-   for (i = 0; i < size; i++) {
+   for (i = 0; i < SIZE; i++) {
       keys[i] = i;
 
       _mesa_hash_table_insert(ht, keys + i, NULL);
