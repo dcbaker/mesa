@@ -29,18 +29,19 @@ test(
   )
 )
 
-test(
-  'cache_test',
-  executable(
+if with_shader_cache
+  test(
     'cache_test',
-    'cache_test.c',
-    c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
-    include_directories : [inc_common, inc_glsl],
-    link_with : [libglsl],
-    dependencies : [dep_clock, dep_thread],
+    executable(
+      'cache_test',
+      'cache_test.c',
+      c_args : [c_vis_args, c_msvc_compat_args, no_override_init_args],
+      include_directories : [inc_common, inc_glsl],
+      link_with : [libglsl],
+      dependencies : [dep_clock, dep_thread],
+    )
   )
-)
-
+endif
 
 test(
   'general_ir_test',
