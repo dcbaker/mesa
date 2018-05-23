@@ -49,22 +49,27 @@ init:
 environment:
   WINFLEXBISON_VERSION: 2.5.15
   LLVM_ARCHIVE: llvm-5.0.1-msvc2017-mtd.7z
+  matrix:
+    - BUILD_SYSTEM: meson
+    - BUILD_SYSTEM: scons
 
 install:
 # Check git config
 - git config core.autocrlf
 # Check pip
-- python --version
-- python -m pip --version
-# Install Mako
-- python -m pip install Mako==1.0.7
-# Install pywin32 extensions, needed by SCons
-- python -m pip install pypiwin32
-# Install python wheels, necessary to install SCons via pip
-- python -m pip install wheel
-# Install SCons
-- python -m pip install scons==3.0.1
-- scons --version
+- py -2.7-32 --version
+- py -2.7-32 -m pip --version
+- py -3.7-64 --version
+- py -3.7-64 -m pip --version
+- if "%BUILD_SYSTEM%"=="scons" py -2.7-32 -m pip install pypiwin32 wheel mako==1.0.7 scons==3.0.1
+- if "%BUILD_SYSTEM%"=="scons" set Path=C:\Python27\Scripts;%Path%
+- if "%BUILD_SYSTEM%"=="scons" scons --version
+- if "%BUILD_SYSTEM%"=="meson" py -3.7-64 -m pip install mako==1.0.7 meson
+- if "%BUILD_SYSTEM%"=="meson" set Path=C:\Python37-x64\Scripts;%Path%
+- if "%BUILD_SYSTEM%"=="meson" meson --version
+- if "%BUILD_SYSTEM%"=="meson" cinst -y ninja pkgconfiglite
+- if "%BUILD_SYSTEM%"=="meson" ninja --version
+- if "%BUILD_SYSTEM%"=="meson" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 # Install flex/bison
 - set WINFLEXBISON_ARCHIVE=win_flex_bison-%WINFLEXBISON_VERSION%.zip
 - if not exist "%WINFLEXBISON_ARCHIVE%" appveyor DownloadFile "https://github.com/lexxmark/winflexbison/releases/download/v%WINFLEXBISON_VERSION%/%WINFLEXBISON_ARCHIVE%"
@@ -79,11 +84,14 @@ install:
 - set LLVM=%CD%\llvm
 
 build_script:
-- scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1
+- if "%BUILD_SYSTEM%"=="scons" scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1
+- if "%BUILD_SYSTEM%"=="meson" meson builddir -Dbuild-tests=true
+- if "%BUILD_SYSTEM%"=="meson" ninja -C builddir
 
 after_build:
-- scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1 check
-
+- if "%BUILD_SYSTEM%"=="scons" scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1 check
+# Doesn't work yet, a large number of tests fail
+#- if "%BUILD_SYSTEM%"=="meson" ninja -C builddir test
 
 # It's possible to setup notification here, as described in
 # http://www.appveyor.com/docs/notifications#appveyor-yml-configuration , but
