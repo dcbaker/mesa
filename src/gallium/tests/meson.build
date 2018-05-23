@@ -25,4 +25,8 @@ endif
 if with_gallium_softpipe
   subdir('unit')
 endif
-subdir('graw')
+if host_machine.system() == 'windows' and cpp.get_id() != 'gcc'
+  # This has linking errors I can't figure out with MinGW. works fine with
+  # MSVC, works fine with GCC on Linux.
+  subdir('graw')
+endif
