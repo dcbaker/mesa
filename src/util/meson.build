@@ -159,16 +159,19 @@ if with_tests
     )
   )
 
-  test(
-    'mesa-sha1',
-    executable(
-      'mesa-sha1_test',
-      files('mesa-sha1_test.c'),
-      include_directories : inc_common,
-      link_with : libmesa_util,
-      c_args : [c_msvc_compat_args],
+  if host_machine.system() != 'windows'
+    # this test doesn't work on windows
+    test(
+      'mesa-sha1',
+      executable(
+        'mesa-sha1_test',
+        files('mesa-sha1_test.c'),
+        include_directories : inc_common,
+        link_with : libmesa_util,
+        c_args : [c_msvc_compat_args],
+      )
     )
-  )
+  endif
 
   subdir('tests/fast_idiv_by_const')
   subdir('tests/hash_table')
