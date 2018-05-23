@@ -25,7 +25,14 @@ libgtest = static_library(
   build_by_default : false,
 )
 
+_gtest_link_args = []
+if cpp.get_id() == 'msvc'
+  # required to use main() from a static library
+  _gtest_link_args += '/SUBSYSTEM:CONSOLE'
+endif
+
 idep_gtest = declare_dependency(
   link_with : libgtest,
+  link_args : _gtest_link_args,
   include_directories : include_directories('include', is_system : true),
 )
