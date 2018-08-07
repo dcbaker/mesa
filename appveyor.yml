@@ -67,8 +67,7 @@ install:
 - if "%BUILD_SYSTEM%"=="meson" py -3.7-64 -m pip install mako==1.0.7 meson
 - if "%BUILD_SYSTEM%"=="meson" set Path=C:\Python37-x64\Scripts;%Path%
 - if "%BUILD_SYSTEM%"=="meson" meson --version
-- if "%BUILD_SYSTEM%"=="meson" cinst -y ninja pkgconfiglite
-- if "%BUILD_SYSTEM%"=="meson" ninja --version
+- if "%BUILD_SYSTEM%"=="meson" cinst -y pkgconfiglite
 - if "%BUILD_SYSTEM%"=="meson" call "C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat" x86
 # Install flex/bison
 - set WINFLEXBISON_ARCHIVE=win_flex_bison-%WINFLEXBISON_VERSION%.zip
@@ -85,8 +84,9 @@ install:
 
 build_script:
 - if "%BUILD_SYSTEM%"=="scons" scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1
-- if "%BUILD_SYSTEM%"=="meson" meson builddir -Dbuild-tests=true
-- if "%BUILD_SYSTEM%"=="meson" ninja -C builddir
+- if "%BUILD_SYSTEM%"=="meson" meson builddir --backend=vs2017 -Dbuild-tests=true
+- if "%BUILD_SYSTEM%"=="meson" cd builddir
+- if "%BUILD_SYSTEM%"=="meson" msbuild mesa.sln /m
 
 after_build:
 - if "%BUILD_SYSTEM%"=="scons" scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1 check
