@@ -64,7 +64,7 @@ install:
 - if "%BUILD_SYSTEM%"=="scons" py -2.7-32 -m pip install pypiwin32 wheel mako==1.0.7 scons==3.0.1
 - if "%BUILD_SYSTEM%"=="scons" set Path=C:\Python27\Scripts;%Path%
 - if "%BUILD_SYSTEM%"=="scons" scons --version
-- if "%BUILD_SYSTEM%"=="meson" py -3.7-64 -m pip install mako==1.0.7 meson
+- if "%BUILD_SYSTEM%"=="meson" py -3.7-64 -m pip install mako==1.0.7 meson>=0.48.0
 - if "%BUILD_SYSTEM%"=="meson" set Path=C:\Python37-x64\Scripts;%Path%
 - if "%BUILD_SYSTEM%"=="meson" meson --version
 - if "%BUILD_SYSTEM%"=="meson" cinst -y pkgconfiglite
@@ -79,12 +79,14 @@ install:
 # Download and extract LLVM
 - if not exist "%LLVM_ARCHIVE%" appveyor DownloadFile "https://people.freedesktop.org/~jrfonseca/llvm/%LLVM_ARCHIVE%"
 - 7z x -y "%LLVM_ARCHIVE%" > nul
-- mkdir llvm\bin
-- set LLVM=%CD%\llvm
+- if "%BUILD_SYSTEM%"=="scons" mkdir llvm\bin
+- if "%BUILD_SYSTEM%"=="scons" set LLVM=%CD%\llvm
+- if "%BUILD_SYSTEM%"=="meson" move llvm subprojects\
+- if "%BUILD_SYSTEM%"=="meson" copy build-support\appveyor-llvm.meson.build subprojects\llvm\meson.build
 
 build_script:
 - if "%BUILD_SYSTEM%"=="scons" scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1
-- if "%BUILD_SYSTEM%"=="meson" meson builddir --backend=vs2017 -Dbuild-tests=true
+- if "%BUILD_SYSTEM%"=="meson" meson builddir --backend=vs2017 --buildtype=plain -Db_vscrt=mtd -Dbuild-tests=true -Dllvm=true -Dllvm-wrap=llvm 
 - if "%BUILD_SYSTEM%"=="meson" cd builddir
 - if "%BUILD_SYSTEM%"=="meson" msbuild mesa.sln /m
 
