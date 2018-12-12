@@ -255,7 +255,7 @@ script:
 
   - |
     if test "x$BUILD" = xmeson; then
-      MESON_OPTIONS="$MESON_OPTIONS -Dbuild-tests=true"
+      MESON_OPTIONS="$MESON_OPTIONS"
 
       if test "x$TRAVIS_OS_NAME" == xosx; then
         MESON_OPTIONS="$MESON_OPTIONS -Degl=false"
