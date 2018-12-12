@@ -79,7 +79,7 @@ matrix:
         - BUILD=meson
         - DRI_DRIVERS=""
         - VULKAN_DRIVERS=""
-        - GALLIUM_DRIVERS="swrast,swr,r300,r600,radeonsi,nouveau,i915,vc4,v3d,pl111,freedreno,etnaviv,imx,tegra,svga,virgl"
+        - GALLIUM_DRIVERS="swrast,r300,r600,radeonsi,nouveau,i915,vc4,v3d,pl111,freedreno,etnaviv,imx,tegra,svga,virgl"
         - MESON_OPTIONS="-Dgallium-opencl=standalone -Dgallium-nine=true"
         - LLVM_VERSION=7
         - LLVM_CONFIG="llvm-config-${LLVM_VERSION}"
@@ -96,6 +96,33 @@ matrix:
             - llvm-7-dev
             - clang-7
             - libclang-7-dev
+            # Common
+            - xz-utils
+            - libexpat1-dev
+            - libx11-xcb-dev
+            - libelf-dev
+            - libunwind8-dev
+            - python3.5
+            - python3-pip
+    - env:
+        # Because SWR takes so long to compile...
+        - LABEL="meson OpenSWR"
+        - BUILD=meson
+        - DRI_DRIVERS=""
+        - VULKAN_DRIVERS=""
+        - GALLIUM_DRIVERS="swrast,swr"
+        - LLVM_VERSION=7
+        - LLVM_CONFIG="llvm-config-${LLVM_VERSION}"
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-6.0
+            # llvm-6 requires libstdc++4.9 which is not in main repo
+            - ubuntu-toolchain-r-test
+          packages:
+            # From sources above
+            - llvm-6.0-dev
+            - libclang-6.0-dev
             # Common
             - xz-utils
             - libexpat1-dev
