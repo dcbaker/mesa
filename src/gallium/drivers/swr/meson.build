@@ -316,4 +316,5 @@ libmesaswr = static_library(
 driver_swr = declare_dependency(
   compile_args : '-DGALLIUM_SWR',
   link_with : libmesaswr,
+  dependencies : dep_llvm,
 )

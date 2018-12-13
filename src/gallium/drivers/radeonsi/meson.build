@@ -116,5 +116,5 @@ driver_radeonsi = declare_dependency(
   link_with : [
     libradeonsi, libradeonwinsys, libamdgpuwinsys, libamd_common,
   ],
-  dependencies : idep_nir,
+  dependencies : [idep_nir, dep_llvm],
 )
