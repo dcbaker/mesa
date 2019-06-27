@@ -922,13 +922,22 @@ if cc.get_id() == 'msvc'
     cpp_args += '-Wno-microsoft-enum-value'
   endif
 else
-  foreach a : ['-Werror=implicit-function-declaration',
-               '-Werror=missing-prototypes', '-Werror=return-type',
-               '-Werror=incompatible-pointer-types',
-               '-Werror=format',
-               '-Wformat-security',
-               '-fno-math-errno',
-               '-fno-trapping-math', '-Qunused-arguments']
+  _trial = [
+     '-Werror=implicit-function-declaration',
+     '-Werror=missing-prototypes', '-Werror=return-type',
+     '-Werror=incompatible-pointer-types',
+     '-fno-math-errno',
+     '-fno-trapping-math',
+     '-Qunused-arguments',
+  ]
+  # MinGW chokes on format specifiers and I can't get it all working
+  if not (cc.get_id() == 'gcc' and host_machine.system() == 'windows')
+    _trial += [
+     '-Werror=format',
+     '-Wformat-security',
+    ]
+  endif
+  foreach a : _trial
     if cc.has_argument(a)
       c_args += a
     endif
@@ -940,12 +949,19 @@ else
     endif
   endforeach
 
+  _trial = [
+    '-Werror=return-type',
+    '-fno-math-errno', '-fno-trapping-math',
+    '-Qunused-arguments',
+  ]
+  if not (cc.get_id() == 'gcc' and host_machine.system() == 'windows')
+    _trial += [
+      '-Werror=format',
+      '-Wformat-security',
+    ]
+  endif
   # Check for generic C++ arguments
-  foreach a : ['-Werror=return-type',
-               '-Werror=format',
-               '-Wformat-security',
-               '-fno-math-errno', '-fno-trapping-math',
-               '-Qunused-arguments']
+  foreach a : _trial
     if cpp.has_argument(a)
       cpp_args += a
     endif
