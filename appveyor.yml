@@ -50,8 +50,8 @@ environment:
   WINFLEXBISON_VERSION: 2.5.15
   LLVM_ARCHIVE: llvm-5.0.1-msvc2017-mtd.7z
   matrix:
-  - compiler: msvc
-    buildsystem: scons
+  # - compiler: msvc
+  #   buildsystem: scons
   - compiler: msvc
     buildsystem: meson
     path: C:\Python37-x64;C:\Python37-x64\Scripts;%path%
