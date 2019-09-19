@@ -82,7 +82,9 @@ for arch in $CROSS_ARCHITECTURES; do
 done
 
 # for 64bit windows cross-builds
-apt-get install -y --no-remove mingw-w64
+apt-get install -y --no-remove \
+    mingw-w64 \
+    libz-mingw-64-dev
 
 # for the vulkan overlay layer
 wget https://github.com/KhronosGroup/glslang/releases/download/master-tot/glslang-master-linux-Release.zip

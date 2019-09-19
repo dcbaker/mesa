@@ -331,6 +331,17 @@ meson-i386:
       -D llvm=false
       -D osmesa=classic
 
+meson-mingw32-x86_64:
+  extends: .meson-build
+  variables:
+    UNWIND: "false"
+    DRI_DRIVERS: ""
+    GALLIUM_DRIVERS: "swrast"
+    EXTRA_OPTIONS: >
+      -Dllvm=false
+      -Dosmesa=gallium
+      --cross-file=.gitlab-ci/x86_64-w64-mingw32
+
 scons:
   extends: .scons-build
   variables:
