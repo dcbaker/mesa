@@ -59,4 +59,5 @@ if "%buildsystem%" == "scons" (
     call scons -j%NUMBER_OF_PROCESSORS% MSVC_VERSION=14.1 llvm=1 check
 ) else (
     call meson test -C builddir
+)
 goto :eof
