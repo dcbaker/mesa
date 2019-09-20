@@ -80,6 +80,7 @@ if with_any_opengl and with_tests
         glcpp, join_paths(meson.current_source_dir(), 'tests'),
         '--@0@'.format(m),
       ],
+      should_fail : host_machine.system() == 'windows',
       suite : ['compiler', 'glcpp'],
     )
   endforeach
